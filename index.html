@@ -72,6 +72,31 @@
 
     .nav-links a:hover { color: var(--verde-oscuro); }
 
+    .nav-mapdrop {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      background: transparent;
+      color: var(--verde-profundo) !important;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      border-radius: 2px;
+      border: 2px solid var(--verde-oscuro);
+      transition: background 0.3s, color 0.3s;
+      white-space: nowrap;
+    }
+
+    .nav-mapdrop:hover {
+      background: var(--verde-profundo);
+      color: var(--blanco) !important;
+    }
+
     /* HERO */
     .hero {
       min-height: 100vh;
@@ -601,6 +626,9 @@
   <!-- NAV -->
   <nav>
     <a href="#" class="nav-logo">MapLecture</a>
+    <a href="https://mapdrop.streamlit.app" target="_blank" class="nav-mapdrop">
+      💧 MapDrop
+    </a>
     <ul class="nav-links">
       <li><a href="#sobre">Sobre mí</a></li>
       <li><a href="#servicios">Servicios</a></li>
@@ -808,11 +836,11 @@
       </p>
     </div>
     <div class="contacto-datos fade-in">
-      <a href="mailto:brendadquirozv@gmail.com" class="contacto-item">
+      <a href="/cdn-cgi/l/email-protection#b6d4c4d3d8d2d7d2c7c3dfc4d9ccc0f6d1dbd7dfda98d5d9db" class="contacto-item">
         <div class="contacto-icon">✉️</div>
         <div class="contacto-info">
           <span class="contacto-label">Correo electrónico</span>
-          <span class="contacto-valor">brendadquirozv@gmail.com</span>
+          <span class="contacto-valor"><span class="__cf_email__" data-cfemail="771505121913161306021e05180d0137101a161e1b5914181a">[email&#160;protected]</span></span>
         </div>
       </a>
       <a href="tel:+51986688805" class="contacto-item">
@@ -846,17 +874,7 @@
     <span class="footer-cip">Brenda Quiroz · CIP 226000 · Lima, Perú</span>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // Animaciones de entrada al hacer scroll
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-  </script>
-</body>
-</html>
+      entries.forEach
