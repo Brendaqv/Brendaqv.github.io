@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapLecture — Brenda Quiroz | Ingeniera Geógrafa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde-fondo: #dff0ec;
+      --verde-principal: #5aab6e;
+      --verde-oscuro: #2e6b4f;
+      --verde-profundo: #1a3d2e;
+      --azul-rio: #7fd0e0;
+      --azul-claro: #c8eaf2;
+      --texto: #1a1a1a;
+      --texto-suave: #4a5a52;
+      --blanco: #ffffff;
+      --crema: #f7faf8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--texto);
+      background: var(--crema);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(247, 250, 248, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(90, 171, 110, 0.15);
+    }
+
+    .nav-logo {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: var(--verde-profundo);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--texto-suave);
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--verde-oscuro); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      background: var(--verde-profundo);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 5rem 6rem 6rem;
+      position: relative;
+    }
+
+    .hero-left::after {
+      content: '';
+      position: absolute;
+      right: -80px;
+      top: 0; bottom: 0;
+      width: 160px;
+      background: var(--verde-profundo);
+      clip-path: polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%);
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--azul-rio);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-nombre {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 5vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--blanco);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-nombre em {
+      font-style: italic;
+      color: var(--verde-principal);
+    }
+
+    .hero-titulo {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-descripcion {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.75);
+      max-width: 420px;
+      margin-bottom: 3rem;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      padding: 0.9rem 2.2rem;
+      border: 1px solid var(--verde-principal);
+      color: var(--verde-principal);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+
+    .hero-cta:hover {
+      background: var(--verde-principal);
+      color: var(--blanco);
+    }
+
+    .hero-right {
+      background: var(--verde-fondo);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 4rem 6rem 6rem;
+      position: relative;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .stat-item {
+      background: var(--blanco);
+      padding: 2rem 1.5rem;
+      border-radius: 2px;
+      border-left: 3px solid var(--verde-principal);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s forwards;
+    }
+
+    .stat-item:nth-child(1) { animation-delay: 0.3s; }
+    .stat-item:nth-child(2) { animation-delay: 0.5s; }
+    .stat-item:nth-child(3) { animation-delay: 0.7s; }
+    .stat-item:nth-child(4) { animation-delay: 0.9s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-numero {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: var(--verde-oscuro);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--texto-suave);
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+    }
+
+    /* SECCIONES */
+    section {
+      padding: 6rem 6rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--verde-principal);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-titulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--verde-profundo);
+      margin-bottom: 1.5rem;
+    }
+
+    /* SOBRE MÍ */
+    #sobre {
+      background: var(--blanco);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+
+    .sobre-texto p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--texto-suave);
+      font-weight: 300;
+      margin-bottom: 1.2rem;
+    }
+
+    .sobre-texto p strong {
+      color: var(--verde-oscuro);
+      font-weight: 500;
+    }
+
+    .sobre-credentials {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .credential {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(90,171,110,0.15);
+    }
+
+    .credential-año {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      color: var(--verde-principal);
+      font-weight: 600;
+      min-width: 42px;
+      margin-top: 2px;
+    }
+
+    .credential-info {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--texto-suave);
+    }
+
+    .credential-info strong {
+      display: block;
+      color: var(--texto);
+      font-weight: 500;
+      margin-bottom: 0.1rem;
+    }
+
+    /* SERVICIOS */
+    #servicios {
+      background: var(--crema);
+    }
+
+    .servicios-header {
+      max-width: 600px;
+      margin-bottom: 4rem;
+    }
+
+    .servicios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: rgba(90,171,110,0.15);
+      border: 1.5px solid rgba(90,171,110,0.15);
+    }
+
+    .servicio-card {
+      background: var(--blanco);
+      padding: 2.5rem 2rem;
+      position: relative;
+      transition: background 0.3s;
+      cursor: default;
+    }
+
+    .servicio-card:hover {
+      background: var(--verde-profundo);
+    }
+
+    .servicio-card:hover .servicio-num,
+    .servicio-card:hover .servicio-titulo,
+    .servicio-card:hover .servicio-desc {
+      color: var(--blanco);
+    }
+
+    .servicio-card:hover .servicio-num {
+      color: var(--verde-principal);
+    }
+
+    .servicio-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--verde-principal);
+      letter-spacing: 0.1em;
+      margin-bottom: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .servicio-titulo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--verde-profundo);
+      margin-bottom: 1rem;
+      line-height: 1.3;
+      transition: color 0.3s;
+    }
+
+    .servicio-desc {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--texto-suave);
+      font-weight: 300;
+      transition: color 0.3s;
+    }
+
+    /* PROYECTOS */
+    #proyectos {
+      background: var(--verde-profundo);
+    }
+
+    #proyectos .section-eyebrow { color: var(--azul-rio); }
+    #proyectos .section-titulo { color: var(--blanco); }
+
+    .proyectos-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .proyecto-principal {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .proyecto-principal::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--azul-rio);
+    }
+
+    .proyecto-tag {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      background: rgba(127, 208, 224, 0.15);
+      border: 1px solid rgba(127, 208, 224, 0.3);
+      color: var(--azul-rio);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .proyecto-nombre {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--blanco);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .proyecto-desc {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .proyecto-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--azul-rio);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: gap 0.3s;
+    }
+
+    .proyecto-link:hover { gap: 1rem; }
+
+    .proyectos-secundarios {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .proyecto-secundario {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 2rem;
+      flex: 1;
+    }
+
+    .proyecto-secundario .proyecto-tag {
+      background: rgba(90,171,110,0.15);
+      border-color: rgba(90,171,110,0.3);
+      color: var(--verde-principal);
+    }
+
+    .proyecto-secundario .proyecto-nombre {
+      font-size: 1.3rem;
+    }
+
+    .proyecto-secundario .proyecto-desc {
+      font-size: 0.82rem;
+    }
+
+    /* CONTACTO */
+    #contacto {
+      background: var(--crema);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+
+    .contacto-intro p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--texto-suave);
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+
+    .contacto-datos {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .contacto-item {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--blanco);
+      border-left: 3px solid var(--verde-principal);
+      text-decoration: none;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .contacto-item:hover {
+      border-color: var(--azul-rio);
+      transform: translateX(4px);
+    }
+
+    .contacto-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--verde-fondo);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .contacto-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contacto-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--verde-principal);
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+
+    .contacto-valor {
+      font-size: 0.9rem;
+      color: var(--texto);
+      font-weight: 400;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--verde-profundo);
+      padding: 2.5rem 6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+    }
+
+    .footer-slogan {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .footer-cip {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+    }
+
+    /* ANIMACIONES DE ENTRADA */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 2rem; }
+      .nav-links { gap: 1.5rem; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-left { padding: 8rem 2.5rem 4rem; }
+      .hero-left::after { display: none; }
+      .hero-right { padding: 4rem 2.5rem; }
+      section { padding: 4rem 2.5rem; }
+      #sobre, #contacto { grid-template-columns: 1fr; gap: 3rem; }
+      .servicios-grid { grid-template-columns: 1fr 1fr; }
+      .proyectos-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">MapLecture</a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre mí</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#proyectos">Proyectos</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">Ingeniera Geógrafa · CIP 226000</p>
+      <h1 class="hero-nombre">Brenda<br><em>Quiroz</em></h1>
+      <p class="hero-titulo">Planificación Territorial · Gestión de Riesgos · Análisis Espacial</p>
+      <p class="hero-descripcion">
+        Más de 8 años aplicando ingeniería geográfica al territorio peruano — 
+        desde la evaluación de riesgos hasta el desarrollo de herramientas digitales 
+        que hacen el análisis territorial más accesible.
+      </p>
+      <a href="#contacto" class="hero-cta">Trabajemos juntos</a>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-numero">8+</div>
+          <div class="stat-label">Años de experiencia en sector público y privado</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-numero">10+</div>
+          <div class="stat-label">Proyectos de planificación urbana y territorial</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-numero">GRD</div>
+          <div class="stat-label">Evaluadora certificada CENEPRED N° 041-2021</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-numero">💧</div>
+          <div class="stat-label">Creadora de MapDrop — herramienta educativa libre</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE MÍ -->
+  <section id="sobre">
+    <div class="sobre-texto fade-in">
+      <p class="section-eyebrow">Sobre mí</p>
+      <h2 class="section-titulo">Territorio, datos<br>y conocimiento</h2>
+      <p>
+        Soy Ingeniera Geógrafa con más de 8 años de trayectoria en el sector público y privado. 
+        He trabajado en equipos multidisciplinarios para la formulación de planes urbanos y territoriales 
+        en el Ministerio de Vivienda, gobiernos regionales y locales de todo el Perú.
+      </p>
+      <p>
+        Mi especialización está en la <strong>gestión de riesgos de desastres</strong>, 
+        el análisis espacial con herramientas SIG y la planificación territorial con enfoque 
+        en cambio climático y resiliencia urbana.
+      </p>
+      <p>
+        Desde 2025 combino mi experiencia profesional con el desarrollo de herramientas digitales 
+        educativas a través de <strong>MapLecture</strong> — porque creo que el conocimiento técnico 
+        debe ser accesible para quienes toman decisiones sobre el territorio.
+      </p>
+      <p>
+        Actualmente curso la Maestría en Gestión del Riesgo de Desastres y Cambio Climático 
+        en la UNMSM.
+      </p>
+    </div>
+    <div class="fade-in">
+      <p class="section-eyebrow">Formación</p>
+      <div class="sobre-credentials">
+        <div class="credential">
+          <span class="credential-año">2025</span>
+          <div class="credential-info">
+            <strong>Maestría en GRD y Cambio Climático</strong>
+            Universidad Nacional Mayor de San Marcos · En curso
+          </div>
+        </div>
+        <div class="credential">
+          <span class="credential-año">2020</span>
+          <div class="credential-info">
+            <strong>Especialización en Evaluación de Riesgos de Desastres</strong>
+            Universidad Nacional de Ingeniería · Certificada CENEPRED
+          </div>
+        </div>
+        <div class="credential">
+          <span class="credential-año">2017</span>
+          <div class="credential-info">
+            <strong>Maestría en Planificación y Gestión Urbana Regional</strong>
+            Universidad Nacional de Ingeniería
+          </div>
+        </div>
+        <div class="credential">
+          <span class="credential-año">2016</span>
+          <div class="credential-info">
+            <strong>Diplomado Internacional en GRD y Derechos Humanos</strong>
+            Instituto Henry Dunant · Santiago de Chile
+          </div>
+        </div>
+        <div class="credential">
+          <span class="credential-año">2004</span>
+          <div class="credential-info">
+            <strong>Ingeniera Geógrafa</strong>
+            Universidad Nacional Federico Villarreal
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios">
+    <div class="servicios-header fade-in">
+      <p class="section-eyebrow">Servicios</p>
+      <h2 class="section-titulo">¿En qué puedo<br>ayudarte?</h2>
+    </div>
+    <div class="servicios-grid fade-in">
+      <div class="servicio-card">
+        <p class="servicio-num">01</p>
+        <h3 class="servicio-titulo">Evaluación de Riesgos de Desastres</h3>
+        <p class="servicio-desc">Elaboración de informes EVAR y análisis de riesgo para asentamientos humanos, proyectos de inversión (IOARR) y planes urbanos. Certificada CENEPRED.</p>
+      </div>
+      <div class="servicio-card">
+        <p class="servicio-num">02</p>
+        <h3 class="servicio-titulo">Planificación Territorial y Urbana</h3>
+        <p class="servicio-desc">Diagnóstico, propuestas de uso de suelo y cartera de proyectos para PDU, PDM y planes territoriales. Experiencia en MVCS, gobiernos regionales y locales.</p>
+      </div>
+      <div class="servicio-card">
+        <p class="servicio-num">03</p>
+        <h3 class="servicio-titulo">Análisis Espacial y SIG</h3>
+        <p class="servicio-desc">Elaboración de mapas temáticos, análisis geoespacial y sistematización de información territorial con ArcGIS, QGIS y Google Earth Engine.</p>
+      </div>
+      <div class="servicio-card">
+        <p class="servicio-num">04</p>
+        <h3 class="servicio-titulo">Consultoría en GRD y Cambio Climático</h3>
+        <p class="servicio-desc">Asesoría técnica para la integración del enfoque de gestión de riesgos y adaptación climática en instrumentos de planificación y proyectos de inversión.</p>
+      </div>
+      <div class="servicio-card">
+        <p class="servicio-num">05</p>
+        <h3 class="servicio-titulo">Herramientas Digitales y Capacitación</h3>
+        <p class="servicio-desc">Desarrollo de herramientas tecnológicas aplicadas al análisis territorial y formación en interpretación de datos hidrometeorológicos y espaciales.</p>
+      </div>
+      <div class="servicio-card">
+        <p class="servicio-num">06</p>
+        <h3 class="servicio-titulo">Supervisión y Control de Calidad</h3>
+        <p class="servicio-desc">Revisión y levantamiento de observaciones de estudios técnicos, evaluaciones de riesgo y productos de consultoría para entidades públicas y privadas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section id="proyectos">
+    <p class="section-eyebrow fade-in">Proyectos</p>
+    <h2 class="section-titulo fade-in">Trabajo destacado</h2>
+    <div class="proyectos-grid">
+      <div class="proyecto-principal fade-in">
+        <span class="proyecto-tag">Herramienta digital · 2025</span>
+        <h3 class="proyecto-nombre">💧 MapDrop v1.0</h3>
+        <p class="proyecto-desc">
+          Herramienta web gratuita para el procesamiento y análisis exploratorio de datos de 
+          precipitación del SENAMHI. Diseñada para profesionales de ingeniería, geografía y 
+          gestión de riesgos que necesitan interpretar datos hidrometeorológicos sin ser 
+          especialistas en hidrología. Incluye validación de datos, análisis estadístico, 
+          visualización interactiva y exportación Excel. Fundamentada en la Guía de Prácticas 
+          Hidrológicas de la OMM (2009).
+        </p>
+        <a href="https://mapdrop.streamlit.app" target="_blank" class="proyecto-link">
+          Acceder a la herramienta →
+        </a>
+      </div>
+      <div class="proyectos-secundarios">
+        <div class="proyecto-secundario fade-in">
+          <span class="proyecto-tag">Planificación Urbana · 2024</span>
+          <h3 class="proyecto-nombre">PDU Huaral-Aucallama</h3>
+          <p class="proyecto-desc">
+            Especialista en GRD y Cambio Climático para el Plan de Desarrollo Urbano de Huaral-Aucallama. 
+            Ministerio de Vivienda, Construcción y Saneamiento.
+          </p>
+        </div>
+        <div class="proyecto-secundario fade-in">
+          <span class="proyecto-tag">Gestión de Riesgos · 2025</span>
+          <h3 class="proyecto-nombre">Estudios IOARR — PNDP</h3>
+          <p class="proyecto-desc">
+            Elaboración y evaluación de estudios de riesgos de desastres para inversiones IOARR 
+            y estudios de preinversión. Ministerio de la Producción.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="contacto-intro fade-in">
+      <p class="section-eyebrow">Contacto</p>
+      <h2 class="section-titulo">¿Tienes un proyecto<br>en mente?</h2>
+      <p>
+        Estoy disponible para consultorías privadas, proyectos de planificación territorial, 
+        evaluaciones de riesgo y servicios de análisis espacial. También puedo apoyar 
+        capacitaciones y talleres técnicos.
+      </p>
+      <p>
+        Si tu organización trabaja con territorio, datos o gestión de riesgos, 
+        conversemos.
+      </p>
+    </div>
+    <div class="contacto-datos fade-in">
+      <a href="mailto:brendadquirozv@gmail.com" class="contacto-item">
+        <div class="contacto-icon">✉️</div>
+        <div class="contacto-info">
+          <span class="contacto-label">Correo electrónico</span>
+          <span class="contacto-valor">brendadquirozv@gmail.com</span>
+        </div>
+      </a>
+      <a href="tel:+51986688805" class="contacto-item">
+        <div class="contacto-icon">📱</div>
+        <div class="contacto-info">
+          <span class="contacto-label">Teléfono / WhatsApp</span>
+          <span class="contacto-valor">986 688 805</span>
+        </div>
+      </a>
+      <a href="https://www.linkedin.com/in/brenda-quiroz-77630747" target="_blank" class="contacto-item">
+        <div class="contacto-icon">in</div>
+        <div class="contacto-info">
+          <span class="contacto-label">LinkedIn</span>
+          <span class="contacto-valor">Brenda Quiroz Villanueva</span>
+        </div>
+      </a>
+      <a href="https://mapdrop.streamlit.app" target="_blank" class="contacto-item">
+        <div class="contacto-icon">💧</div>
+        <div class="contacto-info">
+          <span class="contacto-label">MapDrop</span>
+          <span class="contacto-valor">mapdrop.streamlit.app</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">MapLecture</span>
+    <span class="footer-slogan">Territorio, datos y conocimiento</span>
+    <span class="footer-cip">Brenda Quiroz · CIP 226000 · Lima, Perú</span>
+  </footer>
+
+  <script>
+    // Animaciones de entrada al hacer scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
