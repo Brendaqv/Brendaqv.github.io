@@ -1,875 +1,770 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapLecture — Brenda Quiroz | Ingeniera Geógrafa</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --verde-fondo: #dff0ec;
-      --verde-principal: #5aab6e;
-      --verde-oscuro: #2e6b4f;
-      --verde-profundo: #1a3d2e;
-      --azul-rio: #7fd0e0;
-      --azul-claro: #c8eaf2;
-      --texto: #1a1a1a;
-      --texto-suave: #4a5a52;
-      --blanco: #ffffff;
-      --crema: #f7faf8;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      color: var(--texto);
-      background: var(--crema);
-      overflow-x: hidden;
-    }
-
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 1.2rem 4rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(247, 250, 248, 0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(90, 171, 110, 0.15);
-    }
-
-    .nav-logo {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      font-size: 1rem;
-      letter-spacing: 0.18em;
-      color: var(--verde-profundo);
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      color: var(--texto-suave);
-      text-transform: uppercase;
-      transition: color 0.3s;
-    }
-
-    .nav-links a:hover { color: var(--verde-oscuro); }
-
-    .nav-mapdrop {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 2rem;
-      background: transparent;
-      color: var(--verde-profundo) !important;
-      text-decoration: none;
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      border-radius: 2px;
-      border: 2px solid var(--verde-oscuro);
-      transition: background 0.3s, color 0.3s;
-      white-space: nowrap;
-    }
-
-    .nav-mapdrop:hover {
-      background: var(--verde-profundo);
-      color: var(--blanco) !important;
-    }
-
-    /* HERO */
-    .hero {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-left {
-      background: var(--verde-profundo);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 8rem 5rem 6rem 6rem;
-      position: relative;
-    }
-
-    .hero-left::after {
-      content: '';
-      position: absolute;
-      right: -80px;
-      top: 0; bottom: 0;
-      width: 160px;
-      background: var(--verde-profundo);
-      clip-path: polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%);
-      z-index: 2;
-    }
-
-    .hero-eyebrow {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--azul-rio);
-      margin-bottom: 1.5rem;
-    }
-
-    .hero-nombre {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3rem, 5vw, 4.5rem);
-      font-weight: 300;
-      line-height: 1.1;
-      color: var(--blanco);
-      margin-bottom: 0.5rem;
-    }
-
-    .hero-nombre em {
-      font-style: italic;
-      color: var(--verde-principal);
-    }
-
-    .hero-titulo {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 300;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.55);
-      margin-bottom: 2.5rem;
-    }
-
-    .hero-descripcion {
-      font-size: 1rem;
-      line-height: 1.75;
-      color: rgba(255,255,255,0.75);
-      max-width: 420px;
-      margin-bottom: 3rem;
-      font-weight: 300;
-    }
-
-    .hero-cta {
-      display: inline-block;
-      padding: 0.9rem 2.2rem;
-      border: 1px solid var(--verde-principal);
-      color: var(--verde-principal);
-      text-decoration: none;
-      font-size: 0.8rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      transition: all 0.3s;
-      font-weight: 500;
-    }
-
-    .hero-cta:hover {
-      background: var(--verde-principal);
-      color: var(--blanco);
-    }
-
-    .hero-right {
-      background: var(--verde-fondo);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6rem 4rem 6rem 6rem;
-      position: relative;
-    }
-
-    .hero-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .stat-item {
-      background: var(--blanco);
-      padding: 2rem 1.5rem;
-      border-radius: 2px;
-      border-left: 3px solid var(--verde-principal);
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 0.6s forwards;
-    }
-
-    .stat-item:nth-child(1) { animation-delay: 0.3s; }
-    .stat-item:nth-child(2) { animation-delay: 0.5s; }
-    .stat-item:nth-child(3) { animation-delay: 0.7s; }
-    .stat-item:nth-child(4) { animation-delay: 0.9s; }
-
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .stat-numero {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.8rem;
-      font-weight: 300;
-      color: var(--verde-oscuro);
-      line-height: 1;
-      margin-bottom: 0.4rem;
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: var(--texto-suave);
-      letter-spacing: 0.05em;
-      line-height: 1.4;
-    }
-
-    /* SECCIONES */
-    section {
-      padding: 6rem 6rem;
-    }
-
-    .section-eyebrow {
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--verde-principal);
-      margin-bottom: 0.8rem;
-    }
-
-    .section-titulo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      font-weight: 300;
-      line-height: 1.2;
-      color: var(--verde-profundo);
-      margin-bottom: 1.5rem;
-    }
-
-    /* SOBRE MÍ */
-    #sobre {
-      background: var(--blanco);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: start;
-    }
-
-    .sobre-texto p {
-      font-size: 1rem;
-      line-height: 1.85;
-      color: var(--texto-suave);
-      font-weight: 300;
-      margin-bottom: 1.2rem;
-    }
-
-    .sobre-texto p strong {
-      color: var(--verde-oscuro);
-      font-weight: 500;
-    }
-
-    .sobre-credentials {
-      margin-top: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
-    }
-
-    .credential {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 0.8rem 0;
-      border-bottom: 1px solid rgba(90,171,110,0.15);
-    }
-
-    .credential-año {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.9rem;
-      color: var(--verde-principal);
-      font-weight: 600;
-      min-width: 42px;
-      margin-top: 2px;
-    }
-
-    .credential-info {
-      font-size: 0.85rem;
-      line-height: 1.5;
-      color: var(--texto-suave);
-    }
-
-    .credential-info strong {
-      display: block;
-      color: var(--texto);
-      font-weight: 500;
-      margin-bottom: 0.1rem;
-    }
-
-    /* SERVICIOS */
-    #servicios {
-      background: var(--crema);
-    }
-
-    .servicios-header {
-      max-width: 600px;
-      margin-bottom: 4rem;
-    }
-
-    .servicios-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5px;
-      background: rgba(90,171,110,0.15);
-      border: 1.5px solid rgba(90,171,110,0.15);
-    }
-
-    .servicio-card {
-      background: var(--blanco);
-      padding: 2.5rem 2rem;
-      position: relative;
-      transition: background 0.3s;
-      cursor: default;
-    }
-
-    .servicio-card:hover {
-      background: var(--verde-profundo);
-    }
-
-    .servicio-card:hover .servicio-num,
-    .servicio-card:hover .servicio-titulo,
-    .servicio-card:hover .servicio-desc {
-      color: var(--blanco);
-    }
-
-    .servicio-card:hover .servicio-num {
-      color: var(--verde-principal);
-    }
-
-    .servicio-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--verde-principal);
-      letter-spacing: 0.1em;
-      margin-bottom: 1.2rem;
-      transition: color 0.3s;
-    }
-
-    .servicio-titulo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
-      font-weight: 400;
-      color: var(--verde-profundo);
-      margin-bottom: 1rem;
-      line-height: 1.3;
-      transition: color 0.3s;
-    }
-
-    .servicio-desc {
-      font-size: 0.85rem;
-      line-height: 1.7;
-      color: var(--texto-suave);
-      font-weight: 300;
-      transition: color 0.3s;
-    }
-
-    /* PROYECTOS */
-    #proyectos {
-      background: var(--verde-profundo);
-    }
-
-    #proyectos .section-eyebrow { color: var(--azul-rio); }
-    #proyectos .section-titulo { color: var(--blanco); }
-
-    .proyectos-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .proyecto-principal {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .proyecto-principal::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
-      background: var(--azul-rio);
-    }
-
-    .proyecto-tag {
-      display: inline-block;
-      padding: 0.3rem 0.8rem;
-      background: rgba(127, 208, 224, 0.15);
-      border: 1px solid rgba(127, 208, 224, 0.3);
-      color: var(--azul-rio);
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-    }
-
-    .proyecto-nombre {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.2rem;
-      font-weight: 300;
-      color: var(--blanco);
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-
-    .proyecto-desc {
-      font-size: 0.9rem;
-      line-height: 1.75;
-      color: rgba(255,255,255,0.65);
-      margin-bottom: 2rem;
-      font-weight: 300;
-    }
-
-    .proyecto-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: var(--azul-rio);
-      text-decoration: none;
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: gap 0.3s;
-    }
-
-    .proyecto-link:hover { gap: 1rem; }
-
-    .proyectos-secundarios {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .proyecto-secundario {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      padding: 2rem;
-      flex: 1;
-    }
-
-    .proyecto-secundario .proyecto-tag {
-      background: rgba(90,171,110,0.15);
-      border-color: rgba(90,171,110,0.3);
-      color: var(--verde-principal);
-    }
-
-    .proyecto-secundario .proyecto-nombre {
-      font-size: 1.3rem;
-    }
-
-    .proyecto-secundario .proyecto-desc {
-      font-size: 0.82rem;
-    }
-
-    /* CONTACTO */
-    #contacto {
-      background: var(--crema);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: start;
-    }
-
-    .contacto-intro p {
-      font-size: 1rem;
-      line-height: 1.8;
-      color: var(--texto-suave);
-      font-weight: 300;
-      margin-bottom: 2rem;
-    }
-
-    .contacto-datos {
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-    }
-
-    .contacto-item {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      padding: 1.2rem 1.5rem;
-      background: var(--blanco);
-      border-left: 3px solid var(--verde-principal);
-      text-decoration: none;
-      transition: border-color 0.3s, transform 0.3s;
-    }
-
-    .contacto-item:hover {
-      border-color: var(--azul-rio);
-      transform: translateX(4px);
-    }
-
-    .contacto-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--verde-fondo);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-
-    .contacto-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .contacto-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--verde-principal);
-      font-weight: 500;
-      margin-bottom: 0.2rem;
-    }
-
-    .contacto-valor {
-      font-size: 0.9rem;
-      color: var(--texto);
-      font-weight: 400;
-    }
-
-    /* FOOTER */
-    footer {
-      background: var(--verde-profundo);
-      padding: 2.5rem 6rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-logo {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      font-size: 0.85rem;
-    }
-
-    .footer-slogan {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic;
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.3);
-    }
-
-    .footer-cip {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.08em;
-    }
-
-    /* ANIMACIONES DE ENTRADA */
-    .fade-in {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      nav { padding: 1rem 2rem; }
-      .nav-links { gap: 1.5rem; }
-      .hero { grid-template-columns: 1fr; }
-      .hero-left { padding: 8rem 2.5rem 4rem; }
-      .hero-left::after { display: none; }
-      .hero-right { padding: 4rem 2.5rem; }
-      section { padding: 4rem 2.5rem; }
-      #sobre, #contacto { grid-template-columns: 1fr; gap: 3rem; }
-      .servicios-grid { grid-template-columns: 1fr 1fr; }
-      .proyectos-grid { grid-template-columns: 1fr; }
-      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MapLecture — Herramientas para el análisis territorial</title>
+<meta name="description" content="MapLecture desarrolla herramientas geoespaciales para profesionales de planificación territorial, gestión de riesgos e inversión pública en Perú.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Fraunces:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --green-950: #071410;
+  --green-900: #0C1F18;
+  --green-800: #102B21;
+  --green-700: #163828;
+  --green-600: #1E4D35;
+  --green-500: #256042;
+  --green-400: #2E7A52;
+  --green-300: #3A9B68;
+  --green-200: #5DBF8A;
+  --green-100: #96DDB5;
+  --green-50:  #D4F0E2;
+  --acc:       #1DB87A;
+  --acc-dim:   #179060;
+  --acc-light: #4DD4A0;
+  --text:      #E8F5EE;
+  --text-2:    #A8C8B8;
+  --text-3:    #6A9880;
+  --border:    #1E4030;
+  --border-2:  #2A5540;
+  --surface:   #0E1E16;
+  --surface-2: #122419;
+  --surface-3: #172E20;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--green-950);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(7,20,16,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  height: 56px;
+  display: flex; align-items: center;
+  padding: 0 clamp(20px, 5vw, 80px);
+}
+.nav-inner {
+  width: 100%; max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; gap: 0;
+}
+.logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--acc);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-mark svg { width: 18px; height: 18px; stroke: #071410; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.logo-text { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -.01em; }
+.logo-text span { color: var(--acc); }
+
+.nav-links {
+  display: flex; gap: 28px; margin-left: auto;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px; color: var(--text-3); text-decoration: none;
+  transition: color .15s; letter-spacing: .02em;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  margin-left: 28px;
+  padding: 7px 16px;
+  background: var(--acc);
+  color: #071410;
+  border-radius: 6px;
+  font-size: 13px; font-weight: 500;
+  text-decoration: none;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.nav-cta:hover { background: var(--acc-light); }
+
+/* ── HERO ── */
+#inicio {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 120px clamp(20px,5vw,80px) 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle grid background */
+#inicio::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: .35;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 0%, transparent 100%);
+}
+
+/* glow */
+#inicio::after {
+  content: '';
+  position: absolute;
+  top: 20%; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(29,184,122,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner { position: relative; z-index: 1; max-width: 780px; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px; color: var(--text-2);
+  margin-bottom: 28px;
+  letter-spacing: .04em;
+}
+.hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acc); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+.hero-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.hero-title em { font-style: italic; color: var(--acc-light); }
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 17px);
+  color: var(--text-2);
+  font-weight: 300;
+  max-width: 540px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-pri {
+  padding: 12px 28px;
+  background: var(--acc);
+  color: #071410;
+  border-radius: 8px;
+  font-size: 14px; font-weight: 500;
+  text-decoration: none;
+  transition: all .15s;
+}
+.btn-pri:hover { background: var(--acc-light); transform: translateY(-1px); }
+.btn-sec {
+  padding: 12px 28px;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  border-radius: 8px;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all .15s;
+}
+.btn-sec:hover { border-color: var(--acc); color: var(--text); }
+
+.hero-stats {
+  display: flex; gap: 40px; justify-content: center;
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.stat-item { text-align: center; }
+.stat-val { font-size: 28px; font-weight: 600; color: var(--acc); font-family: 'Fraunces', serif; }
+.stat-lbl { font-size: 11px; color: var(--text-3); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+
+/* ── SECTIONS ── */
+section { padding: 96px clamp(20px,5vw,80px); }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.sec-label {
+  font-size: 11px; font-weight: 500; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--acc);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-label::before { content: ''; display: block; width: 20px; height: 1px; background: var(--acc); }
+
+.sec-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.sec-desc {
+  font-size: 16px; color: var(--text-2); font-weight: 300;
+  max-width: 560px; line-height: 1.7;
+}
+
+/* ── HERRAMIENTAS ── */
+#herramientas { background: var(--surface); }
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 48px;
+}
+@media(max-width:700px){ .tools-grid{ grid-template-columns:1fr; } }
+
+.tool-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  background: var(--surface-2);
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+  text-decoration: none;
+  display: block;
+}
+.tool-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+.tool-card.featured { border-color: var(--green-500); }
+.tool-card.featured:hover { border-color: var(--acc); }
+
+/* glow on featured */
+.tool-card.featured::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--acc), transparent);
+  opacity: .6;
+}
+
+.tool-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.tool-badge.live { background: rgba(29,184,122,.12); color: var(--acc); border: 1px solid rgba(29,184,122,.25); }
+.tool-badge.soon { background: rgba(168,200,184,.08); color: var(--text-3); border: 1px solid var(--border); }
+
+.tool-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+  font-size: 24px;
+  background: var(--surface-3);
+}
+
+.tool-name {
+  font-size: 22px; font-weight: 500; color: var(--text);
+  margin-bottom: 8px; letter-spacing: -.01em;
+}
+.tool-desc {
+  font-size: 14px; color: var(--text-2); line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+.tool-features {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 6px;
+  margin-bottom: 24px;
+}
+.tool-features li {
+  font-size: 13px; color: var(--text-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.tool-features li::before {
+  content: '';
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--acc); flex-shrink: 0;
+}
+
+.tool-link {
+  font-size: 13px; color: var(--acc); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 6px;
+  text-decoration: none;
+}
+.tool-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.tool-card:hover .tool-link svg { transform: translateX(3px); }
+
+/* ── SOBRE MAPLECTURE ── */
+#sobre { background: var(--green-950); }
+
+.sobre-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  margin-top: 48px;
+}
+@media(max-width:700px){ .sobre-grid{ grid-template-columns:1fr; gap:40px; } }
+
+.sobre-text p {
+  font-size: 15px; color: var(--text-2); line-height: 1.75;
+  margin-bottom: 16px; font-weight: 300;
+}
+.sobre-text p strong { color: var(--text); font-weight: 500; }
+
+.founder-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  background: var(--surface-2);
+}
+.founder-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px;
+}
+.founder-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-500), var(--green-300));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 600;
+  color: #071410;
+  flex-shrink: 0;
+}
+.founder-name { font-size: 15px; font-weight: 500; color: var(--text); }
+.founder-role { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+.founder-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.tag {
+  font-size: 11px; padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-3);
+  background: var(--surface-3);
+}
+.tag.hl { border-color: rgba(29,184,122,.3); color: var(--acc-light); background: rgba(29,184,122,.06); }
+
+.areas-list {
+  margin-top: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.area-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-3);
+}
+.area-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.area-info { }
+.area-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.area-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+/* ── METODOLOGÍA (why maplecture) ── */
+#metodologia { background: var(--surface); }
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 48px;
+}
+@media(max-width:700px){ .pillars-grid{ grid-template-columns:1fr; } }
+
+.pillar {
+  padding: 28px 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.pillar-num {
+  font-size: 11px; color: var(--acc); font-weight: 600;
+  letter-spacing: .1em; margin-bottom: 14px;
+}
+.pillar-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.pillar-desc { font-size: 13px; color: var(--text-3); line-height: 1.6; }
+
+/* ── CONTACTO ── */
+#contacto { background: var(--green-950); }
+
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-top: 48px;
+}
+@media(max-width:700px){ .contacto-grid{ grid-template-columns:1fr; } }
+
+.contacto-text p {
+  font-size: 15px; color: var(--text-2); line-height: 1.75; margin-bottom: 12px; font-weight: 300;
+}
+
+.contact-links { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.contact-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  text-decoration: none;
+  transition: border-color .15s, background .15s;
+}
+.contact-link:hover { border-color: var(--acc); background: rgba(29,184,122,.05); }
+.contact-link-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--surface-3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.contact-link-info { flex: 1; }
+.contact-link-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; }
+.contact-link-val { font-size: 14px; color: var(--text); margin-top: 1px; }
+
+.contact-note {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  height: fit-content;
+}
+.contact-note-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 12px; }
+.contact-note p { font-size: 13px; color: var(--text-3); line-height: 1.65; margin-bottom: 10px; }
+.contact-note p:last-child { margin-bottom: 0; }
+.contact-note strong { color: var(--text-2); font-weight: 500; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px clamp(20px,5vw,80px);
+  display: flex; align-items: center;
+  background: var(--green-950);
+}
+.footer-inner {
+  width: 100%; max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; gap: 0;
+  flex-wrap: wrap; row-gap: 12px;
+}
+.footer-brand {
+  font-size: 13px; font-weight: 500; color: var(--text-3);
+  letter-spacing: .04em;
+}
+.footer-brand span { color: var(--acc); }
+.footer-copy { margin-left: auto; font-size: 12px; color: var(--text-3); }
+.footer-links { display: flex; gap: 20px; margin-left: 32px; }
+.footer-links a { font-size: 12px; color: var(--text-3); text-decoration: none; transition: color .15s; }
+.footer-links a:hover { color: var(--acc); }
+
+/* ── DIVIDER ── */
+.divider { width: 100%; height: 1px; background: var(--border); }
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity .55s ease, transform .55s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+@media(max-width:600px){
+  .hero-stats { gap: 24px; }
+  .nav-links { display: none; }
+  .footer-links { display: none; }
+}
+</style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="nav-logo">MapLecture</a>
-    <a href="https://mapdrop.streamlit.app" target="_blank" class="nav-mapdrop">
-      💧 MapDrop
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo-wrap" href="#inicio">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      </div>
+      <span class="logo-text"><span>Map</span>Lecture</span>
     </a>
     <ul class="nav-links">
-      <li><a href="#sobre">Sobre mí</a></li>
-      <li><a href="#servicios">Servicios</a></li>
-      <li><a href="#proyectos">Proyectos</a></li>
+      <li><a href="#herramientas">Herramientas</a></li>
+      <li><a href="#sobre">Sobre nosotros</a></li>
+      <li><a href="#metodologia">Metodología</a></li>
       <li><a href="#contacto">Contacto</a></li>
     </ul>
-  </nav>
+    <a class="nav-cta" href="https://mapdrop.streamlit.app" target="_blank">Abrir MapDrop →</a>
+  </div>
+</nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-left">
-      <p class="hero-eyebrow">Ingeniera Geógrafa · CIP 226000</p>
-      <h1 class="hero-nombre">Brenda<br><em>Quiroz</em></h1>
-      <p class="hero-titulo">Planificación Territorial · Gestión de Riesgos · Análisis Espacial</p>
-      <p class="hero-descripcion">
-        Más de 8 años aplicando ingeniería geográfica al territorio peruano — 
-        desde la evaluación de riesgos hasta el desarrollo de herramientas digitales 
-        que hacen el análisis territorial más accesible.
-      </p>
-      <a href="#contacto" class="hero-cta">Trabajemos juntos</a>
+<!-- HERO -->
+<section id="inicio">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Laboratorio de herramientas geoespaciales · Lima, Perú
     </div>
-    <div class="hero-right">
-      <div class="hero-stats">
-        <div class="stat-item">
-          <div class="stat-numero">8+</div>
-          <div class="stat-label">Años de experiencia en sector público y privado</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-numero">10+</div>
-          <div class="stat-label">Proyectos de planificación urbana y territorial</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-numero">GRD</div>
-          <div class="stat-label">Evaluadora certificada CENEPRED N° 041-2021</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-numero">💧</div>
-          <div class="stat-label">Creadora de MapDrop — herramienta educativa libre</div>
-        </div>
+    <h1 class="hero-title">
+      Herramientas para<br>entender el <em>territorio</em>
+    </h1>
+    <p class="hero-sub">
+      MapLecture desarrolla software y metodología geoespacial para profesionales
+      de planificación territorial, gestión de riesgos e inversión pública en Perú.
+    </p>
+    <div class="hero-btns">
+      <a class="btn-pri" href="#herramientas">Ver herramientas</a>
+      <a class="btn-sec" href="#contacto">Trabajar con nosotros</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-val">8+</div>
+        <div class="stat-lbl">Años de práctica territorial</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">1</div>
+        <div class="stat-lbl">Herramienta en producción</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">GRD</div>
+        <div class="stat-lbl">Especialización CENEPRED</div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- SOBRE MÍ -->
-  <section id="sobre">
-    <div class="sobre-texto fade-in">
-      <p class="section-eyebrow">Sobre mí</p>
-      <h2 class="section-titulo">Territorio, datos<br>y conocimiento</h2>
-      <p>
-        Soy Ingeniera Geógrafa con más de 8 años de trayectoria en el sector público y privado. 
-        He trabajado en equipos multidisciplinarios para la formulación de planes urbanos y territoriales 
-        en el Ministerio de Vivienda, gobiernos regionales y locales de todo el Perú.
-      </p>
-      <p>
-        Mi especialización está en la <strong>gestión de riesgos de desastres</strong>, 
-        el análisis espacial con herramientas SIG y la planificación territorial con enfoque 
-        en cambio climático y resiliencia urbana.
-      </p>
-      <p>
-        Desde 2025 combino mi experiencia profesional con el desarrollo de herramientas digitales 
-        educativas a través de <strong>MapLecture</strong> — porque creo que el conocimiento técnico 
-        debe ser accesible para quienes toman decisiones sobre el territorio.
-      </p>
-      <p>
-        Actualmente curso la Maestría en Gestión del Riesgo de Desastres y Cambio Climático 
-        en la UNMSM.
-      </p>
+<!-- HERRAMIENTAS -->
+<section id="herramientas">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-label">Herramientas</div>
+      <h2 class="sec-title">Software que resuelve<br>problemas reales</h2>
+      <p class="sec-desc">Cada herramienta nace de una necesidad concreta en la práctica profesional territorial peruana.</p>
     </div>
-    <div class="fade-in">
-      <p class="section-eyebrow">Formación</p>
-      <div class="sobre-credentials">
-        <div class="credential">
-          <span class="credential-año">2025</span>
-          <div class="credential-info">
-            <strong>Maestría en GRD y Cambio Climático</strong>
-            Universidad Nacional Mayor de San Marcos · En curso
-          </div>
-        </div>
-        <div class="credential">
-          <span class="credential-año">2020</span>
-          <div class="credential-info">
-            <strong>Especialización en Evaluación de Riesgos de Desastres</strong>
-            Universidad Nacional de Ingeniería · Certificada CENEPRED
-          </div>
-        </div>
-        <div class="credential">
-          <span class="credential-año">2017</span>
-          <div class="credential-info">
-            <strong>Maestría en Planificación y Gestión Urbana Regional</strong>
-            Universidad Nacional de Ingeniería
-          </div>
-        </div>
-        <div class="credential">
-          <span class="credential-año">2016</span>
-          <div class="credential-info">
-            <strong>Diplomado Internacional en GRD y Derechos Humanos</strong>
-            Instituto Henry Dunant · Santiago de Chile
-          </div>
-        </div>
-        <div class="credential">
-          <span class="credential-año">2004</span>
-          <div class="credential-info">
-            <strong>Ingeniera Geógrafa</strong>
-            Universidad Nacional Federico Villarreal
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+    <div class="tools-grid">
 
-  <!-- SERVICIOS -->
-  <section id="servicios">
-    <div class="servicios-header fade-in">
-      <p class="section-eyebrow">Servicios</p>
-      <h2 class="section-titulo">¿En qué puedo<br>ayudarte?</h2>
-    </div>
-    <div class="servicios-grid fade-in">
-      <div class="servicio-card">
-        <p class="servicio-num">01</p>
-        <h3 class="servicio-titulo">Evaluación de Riesgos de Desastres</h3>
-        <p class="servicio-desc">Elaboración de informes EVAR y análisis de riesgo para asentamientos humanos, proyectos de inversión (IOARR) y planes urbanos. Certificada CENEPRED.</p>
-      </div>
-      <div class="servicio-card">
-        <p class="servicio-num">02</p>
-        <h3 class="servicio-titulo">Planificación Territorial y Urbana</h3>
-        <p class="servicio-desc">Diagnóstico, propuestas de uso de suelo y cartera de proyectos para PDU, PDM y planes territoriales. Experiencia en MVCS, gobiernos regionales y locales.</p>
-      </div>
-      <div class="servicio-card">
-        <p class="servicio-num">03</p>
-        <h3 class="servicio-titulo">Análisis Espacial y SIG</h3>
-        <p class="servicio-desc">Elaboración de mapas temáticos, análisis geoespacial y sistematización de información territorial con ArcGIS, QGIS y Google Earth Engine.</p>
-      </div>
-      <div class="servicio-card">
-        <p class="servicio-num">04</p>
-        <h3 class="servicio-titulo">Consultoría en GRD y Cambio Climático</h3>
-        <p class="servicio-desc">Asesoría técnica para la integración del enfoque de gestión de riesgos y adaptación climática en instrumentos de planificación y proyectos de inversión.</p>
-      </div>
-      <div class="servicio-card">
-        <p class="servicio-num">05</p>
-        <h3 class="servicio-titulo">Herramientas Digitales y Capacitación</h3>
-        <p class="servicio-desc">Desarrollo de herramientas tecnológicas aplicadas al análisis territorial y formación en interpretación de datos hidrometeorológicos y espaciales.</p>
-      </div>
-      <div class="servicio-card">
-        <p class="servicio-num">06</p>
-        <h3 class="servicio-titulo">Supervisión y Control de Calidad</h3>
-        <p class="servicio-desc">Revisión y levantamiento de observaciones de estudios técnicos, evaluaciones de riesgo y productos de consultoría para entidades públicas y privadas.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROYECTOS -->
-  <section id="proyectos">
-    <p class="section-eyebrow fade-in">Proyectos</p>
-    <h2 class="section-titulo fade-in">Trabajo destacado</h2>
-    <div class="proyectos-grid">
-      <div class="proyecto-principal fade-in">
-        <span class="proyecto-tag">Herramienta digital · 2025</span>
-        <h3 class="proyecto-nombre">💧 MapDrop v1.0</h3>
-        <p class="proyecto-desc">
-          Herramienta web gratuita para el procesamiento y análisis exploratorio de datos de 
-          precipitación del SENAMHI. Diseñada para profesionales de ingeniería, geografía y 
-          gestión de riesgos que necesitan interpretar datos hidrometeorológicos sin ser 
-          especialistas en hidrología. Incluye validación de datos, análisis estadístico, 
-          visualización interactiva y exportación Excel. Fundamentada en la Guía de Prácticas 
-          Hidrológicas de la OMM (2009).
+      <!-- MAPDROP -->
+      <a class="tool-card featured reveal" href="https://mapdrop.streamlit.app" target="_blank">
+        <div class="tool-badge live">● Disponible</div>
+        <div class="tool-icon">💧</div>
+        <div class="tool-name">MapDrop</div>
+        <p class="tool-desc">
+          Procesamiento automático de datos hidrometeorológicos del SENAMHI.
+          Convierte datos crudos en análisis estadístico listo para informes técnicos.
         </p>
-        <a href="https://mapdrop.streamlit.app" target="_blank" class="proyecto-link">
-          Acceder a la herramienta →
-        </a>
+        <ul class="tool-features">
+          <li>Estandarización de datos TXT, CSV y XLSX</li>
+          <li>Complementación automática de series temporales</li>
+          <li>Precipitaciones máximas y umbrales estadísticos</li>
+          <li>Soporte para estaciones convencionales y EMA</li>
+          <li>Exportación Excel para uso en estudios</li>
+        </ul>
+        <span class="tool-link">
+          Abrir aplicación
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+
+      <!-- PRÓXIMAMENTE -->
+      <div class="tool-card reveal" style="cursor:default;opacity:.75">
+        <div class="tool-badge soon">En desarrollo</div>
+        <div class="tool-icon">🗺️</div>
+        <div class="tool-name">MapDrop v3</div>
+        <p class="tool-desc">
+          Módulo de recomendaciones automáticas de medidas de gestión de riesgo
+          según tipo de proyecto e indicadores hidrometeorológicos.
+        </p>
+        <ul class="tool-features">
+          <li>Integración directa con API SENAMHI</li>
+          <li>Recomendaciones por tipo de proyecto (mercado, carretera, riego)</li>
+          <li>Cruces automáticos con nivel de peligro identificado</li>
+          <li>Información fisiográfica para estimación de escorrentía</li>
+        </ul>
+        <span class="tool-link" style="color:var(--text-3)">Próximamente</span>
       </div>
-      <div class="proyectos-secundarios">
-        <div class="proyecto-secundario fade-in">
-          <span class="proyecto-tag">Planificación Urbana · 2024</span>
-          <h3 class="proyecto-nombre">PDU Huaral-Aucallama</h3>
-          <p class="proyecto-desc">
-            Especialista en GRD y Cambio Climático para el Plan de Desarrollo Urbano de Huaral-Aucallama. 
-            Ministerio de Vivienda, Construcción y Saneamiento.
+
+    </div>
+  </div>
+</section>
+
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-label">Sobre MapLecture</div>
+      <h2 class="sec-title">Conocimiento técnico<br>hecho herramienta</h2>
+    </div>
+    <div class="sobre-grid">
+      <div class="sobre-text reveal">
+        <p>
+          MapLecture es un laboratorio independiente de herramientas geoespaciales fundado en Lima, Perú.
+          Nace de la convicción de que el <strong>análisis territorial riguroso</strong> debe estar al alcance
+          de los profesionales que toman decisiones sobre el territorio — no solo de quienes tienen
+          acceso a software costoso o a equipos especializados.
+        </p>
+        <p>
+          Cada herramienta que desarrollamos parte de un problema real encontrado en la práctica:
+          en la evaluación de riesgos de proyectos de inversión pública, en la planificación
+          de asentamientos, en la consultoría territorial. La tecnología es el medio —
+          el objetivo es que el análisis sea <strong>más preciso, más rápido y más accesible</strong>.
+        </p>
+        <div class="areas-list">
+          <div class="area-item">
+            <div class="area-icon">⚠️</div>
+            <div class="area-info">
+              <div class="area-name">Gestión de riesgos de desastres</div>
+              <div class="area-desc">EVAR, IOARR, análisis de peligro, vulnerabilidad y riesgo</div>
+            </div>
+          </div>
+          <div class="area-item">
+            <div class="area-icon">🌧️</div>
+            <div class="area-info">
+              <div class="area-name">Análisis hidrometeorológico</div>
+              <div class="area-desc">Precipitación, eventos extremos, umbrales de alerta</div>
+            </div>
+          </div>
+          <div class="area-item">
+            <div class="area-icon">🗺️</div>
+            <div class="area-info">
+              <div class="area-name">Planificación territorial</div>
+              <div class="area-desc">SIG, análisis espacial, diagnóstico territorial</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="founder-card reveal">
+        <div class="founder-header">
+          <div class="founder-avatar">BQ</div>
+          <div>
+            <div class="founder-name">Brenda Quiroz Villanueva</div>
+            <div class="founder-role">Fundadora · Ing. Geógrafa CIP 226000</div>
+          </div>
+        </div>
+        <div class="founder-tags">
+          <span class="tag hl">Evaluadora CENEPRED</span>
+          <span class="tag hl">EVAR · IOARR</span>
+          <span class="tag">8+ años sector público</span>
+          <span class="tag">Maestría GRD — UNMSM</span>
+          <span class="tag">ArcGIS · QGIS</span>
+          <span class="tag">Costa · Sierra · Selva</span>
+        </div>
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+          <p style="font-size:13px;color:var(--text-3);line-height:1.65;">
+            Especialista en evaluación de riesgos para inversión pública (PNDP-PRODUCE).
+            Ha desarrollado estudios técnicos en las tres regiones naturales del Perú.
+            MapLecture es la extensión tecnológica de esa práctica.
           </p>
         </div>
-        <div class="proyecto-secundario fade-in">
-          <span class="proyecto-tag">Gestión de Riesgos · 2025</span>
-          <h3 class="proyecto-nombre">Estudios IOARR — PNDP</h3>
-          <p class="proyecto-desc">
-            Elaboración y evaluación de estudios de riesgos de desastres para inversiones IOARR 
-            y estudios de preinversión. Ministerio de la Producción.
-          </p>
-        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- CONTACTO -->
-  <section id="contacto">
-    <div class="contacto-intro fade-in">
-      <p class="section-eyebrow">Contacto</p>
-      <h2 class="section-titulo">¿Tienes un proyecto<br>en mente?</h2>
-      <p>
-        Estoy disponible para consultorías privadas, proyectos de planificación territorial, 
-        evaluaciones de riesgo y servicios de análisis espacial. También puedo apoyar 
-        capacitaciones y talleres técnicos.
-      </p>
-      <p>
-        Si tu organización trabaja con territorio, datos o gestión de riesgos, 
-        conversemos.
-      </p>
+<!-- METODOLOGÍA -->
+<section id="metodologia">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-label">Metodología</div>
+      <h2 class="sec-title">Por qué MapLecture</h2>
     </div>
-    <div class="contacto-datos fade-in">
-      <a href="/cdn-cgi/l/email-protection#b6d4c4d3d8d2d7d2c7c3dfc4d9ccc0f6d1dbd7dfda98d5d9db" class="contacto-item">
-        <div class="contacto-icon">✉️</div>
-        <div class="contacto-info">
-          <span class="contacto-label">Correo electrónico</span>
-          <span class="contacto-valor"><span class="__cf_email__" data-cfemail="771505121913161306021e05180d0137101a161e1b5914181a">[email&#160;protected]</span></span>
-        </div>
-      </a>
-      <a href="tel:+51986688805" class="contacto-item">
-        <div class="contacto-icon">📱</div>
-        <div class="contacto-info">
-          <span class="contacto-label">Teléfono / WhatsApp</span>
-          <span class="contacto-valor">986 688 805</span>
-        </div>
-      </a>
-      <a href="https://www.linkedin.com/in/brenda-quiroz-77630747" target="_blank" class="contacto-item">
-        <div class="contacto-icon">in</div>
-        <div class="contacto-info">
-          <span class="contacto-label">LinkedIn</span>
-          <span class="contacto-valor">Brenda Quiroz Villanueva</span>
-        </div>
-      </a>
-      <a href="https://mapdrop.streamlit.app" target="_blank" class="contacto-item">
-        <div class="contacto-icon">💧</div>
-        <div class="contacto-info">
-          <span class="contacto-label">MapDrop</span>
-          <span class="contacto-valor">mapdrop.streamlit.app</span>
-        </div>
-      </a>
+    <div class="pillars-grid">
+      <div class="pillar reveal">
+        <div class="pillar-num">01</div>
+        <div class="pillar-title">Fundamentado en norma técnica</div>
+        <p class="pillar-desc">Cada metodología implementada tiene respaldo en guías oficiales — OMM, CENEPRED, SENAMHI. No improvisamos cálculos.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-num">02</div>
+        <div class="pillar-title">Construido desde la práctica</div>
+        <p class="pillar-desc">Nuestras herramientas resuelven problemas que encontramos en proyectos reales de inversión pública y consultoría territorial.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-num">03</div>
+        <div class="pillar-title">Orientado al profesional peruano</div>
+        <p class="pillar-desc">Diseñado para el contexto peruano: datos del SENAMHI, marco SINAGERD, formatos que los evaluadores realmente usan.</p>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    <span class="footer-logo">MapLecture</span>
-    <span class="footer-slogan">Territorio, datos y conocimiento</span>
-    <span class="footer-cip">Brenda Quiroz · CIP 226000 · Lima, Perú</span>
-  </footer>
+<!-- CONTACTO -->
+<section id="contacto">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="sec-label">Contacto</div>
+      <h2 class="sec-title">¿Tienes un proyecto<br>territorial?</h2>
+    </div>
+    <div class="contacto-grid">
+      <div class="contacto-text reveal">
+        <p>
+          Trabajamos con municipalidades, consultoras, ONGs y profesionales independientes
+          que necesitan análisis territorial riguroso o herramientas adaptadas a su flujo de trabajo.
+        </p>
+        <p>
+          Si tu proyecto involucra gestión de riesgos, planificación territorial o análisis
+          hidrometeorológico en Perú, conversemos.
+        </p>
+        <div class="contact-links">
+          <a class="contact-link" href="mailto:brendaqv@maplecture.com">
+            <div class="contact-link-icon">✉️</div>
+            <div class="contact-link-info">
+              <div class="contact-link-label">Correo</div>
+              <div class="contact-link-val">brendaqv@maplecture.com</div>
+            </div>
+          </a>
+          <a class="contact-link" href="https://wa.me/51986688805" target="_blank">
+            <div class="contact-link-icon">📱</div>
+            <div class="contact-link-info">
+              <div class="contact-link-label">WhatsApp</div>
+              <div class="contact-link-val">+51 986 688 805</div>
+            </div>
+          </a>
+          <a class="contact-link" href="https://www.linkedin.com/in/brenda-quiroz-77630747" target="_blank">
+            <div class="contact-link-icon">in</div>
+            <div class="contact-link-info">
+              <div class="contact-link-label">LinkedIn</div>
+              <div class="contact-link-val">Brenda Quiroz Villanueva</div>
+            </div>
+          </a>
+        </div>
+      </div>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // Animaciones de entrada al hacer scroll
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach
+      <div class="contact-note reveal">
+        <div class="contact-note-title">¿En qué podemos apoyarte?</div>
+        <p><strong>Evaluaciones de riesgo (EVAR / IOARR)</strong><br>Para proyectos de inversión pública que requieren análisis de peligro, vulnerabilidad y riesgo según normativa CENEPRED.</p>
+        <p><strong>Consultoría SIG y análisis espacial</strong><br>Mapas temáticos, análisis de cuencas, caracterización territorial para estudios técnicos.</p>
+        <p><strong>Adaptación de MapDrop</strong><br>Funcionalidades específicas para tu flujo de trabajo o institución.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><span>Map</span>Lecture · Lima, Perú</div>
+    <nav class="footer-links">
+      <a href="https://mapdrop.streamlit.app" target="_blank">MapDrop</a>
+      <a href="#sobre">Sobre nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <div class="footer-copy">© 2025 MapLecture</div>
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach((el,i) => {
+  el.style.transitionDelay = (i % 4) * 0.07 + 's';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
