@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRD Probabilística · Módulo de Estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sw:280px;--accent:#C4852A;--accent-l:#F5E8D5;--accent-d:#8B5E1D;
+  --bg:#FAFAF6;--card:#FFFFFF;--sid:#1A1A18;--sid-h:#252523;--sid-a:#2C2820;
+  --sid-acc:#D4954A;--txt:#1C1C1A;--txt2:#6B6B68;--txt3:#9B9B98;
+  --brd:#E8E8E3;--brd2:#D0D0CB;--ok:#2D7A4F;--ok-bg:#EBF7F1;
+  --hf:'Playfair Display',serif;--bf:'IBM Plex Sans',sans-serif
+}
+body{font-family:var(--bf);background:var(--bg);color:var(--txt);display:flex;min-height:100vh;font-size:15px;line-height:1.6}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);min-height:100vh;background:var(--sid);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100}
+.sid-hdr{padding:28px 22px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sid-lbl{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sid-acc);margin-bottom:8px}
+.sid-title{font-family:var(--hf);font-size:16px;color:#F0EDE8;line-height:1.3;margin-bottom:4px}
+.sid-sub{font-size:11px;color:#7A7A74;line-height:1.5}
+.prog-wrap{padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.05)}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:#7A7A74;margin-bottom:7px}
+.prog-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--sid-acc);border-radius:2px;transition:width .5s ease}
+.sess-list{flex:1;padding:10px 0}
+.sess-item{display:flex;align-items:flex-start;gap:11px;padding:11px 18px 11px 22px;cursor:pointer;transition:background .15s;border-left:3px solid transparent}
+.sess-item:hover:not(.locked){background:var(--sid-h)}
+.sess-item.active{background:var(--sid-a);border-left-color:var(--sid-acc)}
+.sess-item.locked{cursor:default;opacity:.45}
+.s-num{width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px}
+.n-avail{background:rgba(196,133,42,.18);color:var(--sid-acc)}
+.n-active{background:var(--sid-acc);color:#1A1A18}
+.n-lock{background:rgba(255,255,255,.07);color:#7A7A74}
+.n-done{background:rgba(45,122,79,.22);color:#5BB882}
+.s-meta{flex:1;min-width:0}
+.s-name{font-size:13px;font-weight:500;color:#D0CCC6;line-height:1.3;margin-bottom:2px}
+.sess-item.active .s-name{color:#F5E8D5}
+.s-prev{font-size:11px;color:#5A5A54;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sid-foot{padding:14px 22px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:#4A4A44;line-height:1.5}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;min-height:100vh}
+.sess-content{max-width:780px;margin:0 auto;padding:48px 48px 90px;width:100%}
+
+/* Session header */
+.sess-hdr{margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--brd)}
+.sess-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.sess-tag::before{content:'';width:18px;height:1px;background:var(--accent)}
+.sess-main-title{font-family:var(--hf);font-size:34px;font-weight:600;line-height:1.2;margin-bottom:6px}
+.sess-main-sub{font-size:17px;color:var(--txt2);font-style:italic;font-family:var(--hf);margin-bottom:14px}
+.badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.badge{display:inline-flex;align-items:center;font-size:12px;padding:4px 10px;border-radius:99px;font-weight:500}
+.b-dur{background:#EEF2F7;color:#4A6785}
+.b-lvl{background:var(--accent-l);color:var(--accent-d)}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid var(--brd);margin-bottom:32px}
+.tab-btn{padding:10px 20px;font-size:14px;font-weight:500;color:var(--txt2);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;font-family:var(--bf)}
+.tab-btn:hover{color:var(--txt)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Content typography */
+.cbody h2{font-family:var(--hf);font-size:21px;font-weight:600;margin:34px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--brd)}
+.cbody h2:first-child{margin-top:0}
+.cbody h3{font-size:15px;font-weight:600;margin:20px 0 10px}
+.cbody p{margin-bottom:13px;line-height:1.75}
+.cbody ul,.cbody ol{margin:10px 0 14px 20px}
+.cbody li{margin-bottom:6px;line-height:1.7}
+.cbody strong{font-weight:600}
+
+.callout{background:var(--accent-l);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:15px 18px;margin:18px 0}
+.callout p{margin:0;font-size:14px;line-height:1.65}
+.callout-info{background:#EEF2F7;border-left:3px solid #4A6785;border-radius:0 8px 8px 0;padding:15px 18px;margin:18px 0}
+.callout-info p{margin:0;font-size:14px;line-height:1.65}
+
+.summary-box{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:18px 22px;margin:24px 0}
+.summary-box h3{margin:0 0 10px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--accent)}
+
+.ctable{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px}
+.ctable th{background:var(--txt);color:#fff;padding:9px 13px;text-align:left;font-weight:500;font-size:12.5px}
+.ctable th:first-child{border-radius:6px 0 0 0}.ctable th:last-child{border-radius:0 6px 0 0}
+.ctable td{padding:9px 13px;border-bottom:1px solid var(--brd);vertical-align:top;line-height:1.5}
+.ctable tr:nth-child(even) td{background:#F7F7F4}
+.ctable tr:last-child td{border-bottom:none}
+.ctable .rh{font-weight:600;color:var(--accent-d)}
+
+/* Bibliography */
+.bib-item{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:10px}
+.bib-tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-bottom:7px}
+.bt-ob{background:#FDECEA;color:#C0392B}
+.bt-co{background:#EEF5FF;color:#2B5BA8}
+.bib-ref{font-size:14px;font-weight:600;margin-bottom:4px}
+.bib-desc{font-size:13px;color:var(--txt2);margin-bottom:9px;line-height:1.5}
+.bib-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--accent);text-decoration:none;font-weight:500;border:1px solid var(--accent);padding:3px 10px;border-radius:99px;transition:background .15s}
+.bib-link:hover{background:var(--accent-l)}
+
+/* Evaluation */
+.eval-intro{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin-bottom:22px;font-size:14px;color:var(--txt2);line-height:1.6}
+.eval-q{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.eval-qhdr{display:flex;align-items:baseline;gap:9px;margin-bottom:10px}
+.eval-qnum{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--accent);text-transform:uppercase;flex-shrink:0}
+.eval-qtxt{font-size:14px;font-weight:500;line-height:1.5}
+.eval-ctx{font-size:12px;color:var(--txt2);margin-bottom:10px;padding:8px 11px;background:var(--bg);border-radius:6px;line-height:1.5;font-style:italic}
+.eval-ta{width:100%;min-height:100px;border:1px solid var(--brd);border-radius:8px;padding:11px 13px;font-family:var(--bf);font-size:14px;color:var(--txt);background:var(--bg);resize:vertical;transition:border-color .15s;line-height:1.6}
+.eval-ta:focus{outline:none;border-color:var(--accent);background:#fff}
+.eval-ta::placeholder{color:var(--txt3)}
+.save-ind{font-size:11px;color:var(--txt3);margin-top:5px;height:15px;transition:color .3s}
+.save-ind.saved{color:var(--ok)}
+
+/* Actions */
+.eval-actions{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:22px;border-top:1px solid var(--brd)}
+.btn-done{display:inline-flex;align-items:center;gap:7px;background:var(--txt);color:#fff;border:none;border-radius:8px;padding:11px 22px;font-size:14px;font-weight:500;font-family:var(--bf);cursor:pointer;transition:background .15s}
+.btn-done:hover{background:#2A2A28}
+.btn-done:disabled{background:var(--ok);cursor:default}
+.btn-next{display:inline-flex;align-items:center;gap:5px;background:none;color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:11px 18px;font-size:14px;font-weight:500;font-family:var(--bf);cursor:pointer;transition:background .15s}
+.btn-next:hover{background:var(--accent-l)}
+
+/* Locked */
+.locked-state{text-align:center;padding:70px 20px;color:var(--txt3)}
+.locked-icon{font-size:36px;margin-bottom:14px}
+.locked-title{font-family:var(--hf);font-size:22px;color:var(--txt2);margin-bottom:8px}
+.locked-text{font-size:14px;max-width:380px;margin:0 auto;line-height:1.6;color:var(--txt2)}
+.locked-topics{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:20px}
+.locked-topic{background:var(--card);border:1px solid var(--brd);border-radius:99px;padding:4px 12px;font-size:12px;color:var(--txt2)}
+
+/* Notes */
+.notes-wrap{margin-top:36px;padding-top:28px;border-top:1px solid var(--brd)}
+.notes-lbl{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
+.notes-ta{width:100%;min-height:80px;border:1px solid var(--brd);border-radius:8px;padding:11px 13px;font-family:var(--bf);font-size:13px;color:var(--txt);background:var(--bg);resize:vertical;line-height:1.6}
+.notes-ta:focus{outline:none;border-color:var(--accent);background:#fff}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sid-hdr">
+    <div class="sid-lbl">Módulo de Estudio</div>
+    <div class="sid-title">GRD Probabilística</div>
+    <div class="sid-sub">De describir el riesgo a medirlo</div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-lbl">
+      <span>Progreso</span>
+      <span id="prog-text">0 / 7 sesiones</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <nav class="sess-list" id="sess-list"></nav>
+  <div class="sid-foot">
+    Brenda Q. · MapLecture<br>
+    GRD Cuantitativa · 2026
+  </div>
+</aside>
+
+<main class="main">
+  <div class="sess-content" id="content-area"></div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATOS DEL CURSO
+// ─────────────────────────────────────────────
+const SESSIONS = [
+{
+  id: 1,
+  title: "El salto conceptual",
+  subtitle: "Del mapa de colores al número",
+  duration: "30–45 min",
+  level: "Conceptual",
+  topics: ["Límites del enfoque CENEPRED","La pregunta probabilística","Los tres ingredientes"],
+  status: "available",
+  content: `
+<div class="cbody">
+  <div class="callout-info">
+    <p><strong>Objetivo:</strong> Entender por qué el enfoque descriptivo es insuficiente en ciertos contextos, y cuál es la pregunta distinta que hace el enfoque probabilístico.</p>
+  </div>
+
+  <h2>1. Lo que ya sabes hacer (y por qué funciona, hasta cierto punto)</h2>
+  <p>El EVAR tradicional —el que conoces, el que pide CENEPRED— responde a esta pregunta:</p>
+  <div class="callout"><p><em>"¿Este predio está expuesto a un peligro? ¿Qué tan alto es ese peligro?"</em></p></div>
+  <p>Para responderla usas el proceso analítico jerárquico de Saaty: defines criterios, les asignas pesos, combinas capas en QGIS, y obtienes un mapa con niveles. Al final entregas algo que dice: <em>"el peligro por inundación pluvial es Alto."</em></p>
+  <p>Ese resultado es útil. Informa decisiones de habilitación de predio, orienta medidas de reducción, cumple la normativa. No es un método malo.</p>
+  <p><strong>El problema es lo que no responde:</strong></p>
+  <ul>
+    <li>¿Cuántas veces en 50 años se espera que ocurra ese evento?</li>
+    <li>Si ocurre, ¿cuánto dinero pierde el proyecto?</li>
+    <li>Si invierto S/. 200,000 en drenaje, ¿cuánto reduce eso la pérdida esperada?</li>
+    <li>¿Cuál es la probabilidad de que el mercado quede inoperativo más de 30 días?</li>
+  </ul>
+  <p>Un inversor privado, una aseguradora o un banco de desarrollo <em>necesitan</em> esas respuestas. El mapa de colores no las da.</p>
+
+  <h2>2. La pregunta que cambia todo</h2>
+  <p>El enfoque probabilístico nace de reformular la pregunta central:</p>
+  <table class="ctable">
+    <tr><th>Enfoque</th><th>Pregunta central</th></tr>
+    <tr><td class="rh">CENEPRED (descriptivo)</td><td>¿Cuál es el nivel de peligro?</td></tr>
+    <tr><td class="rh">Probabilístico</td><td>¿Con qué frecuencia ocurrirá un evento de cierta intensidad, y cuánto daño causará cuando ocurra?</td></tr>
+  </table>
+  <p>Parece un matiz, pero cambia todo el análisis. Para responder la segunda pregunta necesitas tres ingredientes que el EVAR estándar no exige:</p>
+  <h3>a) Una dimensión temporal</h3>
+  <p>No basta decir "el río se desborda". Necesitas saber: ¿cada cuántos años? ¿hay un 10% de probabilidad de que ocurra en los próximos 10 años? Esta es la base del concepto de <strong>período de retorno</strong>, que verás en la Sesión 2.</p>
+  <h3>b) Una función de daño, no un nivel</h3>
+  <p>No basta decir "vulnerabilidad alta". Necesitas una función que diga: <em>si el tirante de agua llega a 0.5 m, el 30% del equipamiento eléctrico se daña; si llega a 1.2 m, el 90% se daña.</em> Esto es una <strong>curva de fragilidad</strong>.</p>
+  <h3>c) Un valor económico de los activos</h3>
+  <p>No basta inventariar el predio. Necesitas saber cuánto vale lo que está en riesgo, porque la pérdida es siempre pérdida <em>de algo con valor</em>.</p>
+
+  <h2>3. La ecuación del riesgo en versión probabilística</h2>
+  <p>Probablemente conoces la fórmula conceptual del riesgo:</p>
+  <div class="callout"><p><strong>Riesgo = Peligro × Vulnerabilidad × Exposición</strong></p></div>
+  <p>En el enfoque cuantitativo, esa misma ecuación se lee así:</p>
+  <table class="ctable">
+    <tr><th>Componente</th><th>Versión CENEPRED</th><th>Versión probabilística</th></tr>
+    <tr><td class="rh">Peligro</td><td>Nivel: Alto, Medio, Bajo</td><td>Curva de peligro: probabilidad de exceder cierta intensidad por año</td></tr>
+    <tr><td class="rh">Vulnerabilidad</td><td>Índice 0–1 basado en encuestas</td><td>Función de fragilidad: P(daño | intensidad)</td></tr>
+    <tr><td class="rh">Exposición</td><td>Presencia de elementos en zona</td><td>Valor económico de los activos expuestos</td></tr>
+    <tr><td class="rh">Riesgo</td><td>Nivel de riesgo (color)</td><td>Pérdida Anual Esperada en soles</td></tr>
+  </table>
+  <p>El resultado ya no es un color. Es un número: <em>"este mercado tiene una Pérdida Anual Esperada de S/. 85,000 por eventos de inundación pluvial."</em></p>
+
+  <h2>4. Una analogía que ya conoces</h2>
+  <p>Piensa en cómo funciona un seguro de vehículo. La aseguradora no te dice: <em>"tu riesgo de accidente es Alto".</em> Te dice: <em>"según tus características, esperamos pagar en promedio S/. 1,200 al año por siniestros de tu vehículo, entonces tu prima es S/. 1,500."</em></p>
+  <p>Para llegar a ese número usaron exactamente la misma lógica:</p>
+  <ul>
+    <li><strong>Probabilidad de evento</strong> — ¿con qué frecuencia choca alguien con tu perfil?</li>
+    <li><strong>Función de daño</strong> — si choca, ¿cuánto cuesta reparar en promedio?</li>
+    <li><strong>Valor del activo</strong> — ¿cuánto vale el vehículo?</li>
+  </ul>
+  <p>Eso es gestión del riesgo probabilística. CAPRA, FEMA P-58, REDi — todos son versiones sofisticadas de esa misma lógica, aplicadas a edificaciones.</p>
+
+  <h2>5. Por qué esto importa para tu perfil</h2>
+  <p>El mercado peruano de consultoría GRD opera casi exclusivamente en el enfoque descriptivo. Eso no va a cambiar de un día para otro, y no debería: el EVAR de CENEPRED cumple un rol normativo real.</p>
+  <p>Pero hay un segmento que ya exige el enfoque cuantitativo y está mal atendido: proyectos con financiamiento multilateral (BID, BM, GIZ), empresas que necesitan métricas para seguros, y proyectos de inversión privada donde el dueño quiere saber cuánto pierde, no qué color tiene su predio.</p>
+  <p>Dominar el puente entre ambos enfoques —y poder traducir uno al otro— es exactamente el diferenciador.</p>
+
+  <div class="summary-box">
+    <h3>✦ Resumen de la sesión</h3>
+    <ol>
+      <li style="margin-bottom:8px"><strong>El enfoque descriptivo responde "¿hay riesgo?".</strong> El probabilístico responde "¿cuánto y cuándo?"</li>
+      <li style="margin-bottom:8px"><strong>La diferencia no es solo de precisión, es de utilidad para decisiones económicas.</strong> Un inversor no puede operar con un color.</li>
+      <li><strong>Los tres ingredientes del enfoque cuantitativo son:</strong> una curva de peligro (frecuencia del evento), una función de daño (cuánto afecta cuando ocurre), y un valor de exposición (cuánto se pierde).</li>
+    </ol>
+  </div>
+</div>`,
+  bibliography: [
+    {
+      tag:"obligatoria", label:"Lectura obligatoria",
+      ref:"UNDRR (2017). Words into Action Guidelines: National Disaster Risk Assessment.",
+      desc:"Capítulos 1–2. Introduce la diferencia entre riesgo cualitativo y cuantitativo en lenguaje accesible, sin matemáticas densas. Punto de partida ideal.",
+      url:"https://www.undrr.org/publication/words-action-guidelines-national-disaster-risk-assessment"
+    },
+    {
+      tag:"obligatoria", label:"Lectura obligatoria",
+      ref:"Cardona, O.D. (2001). Estimación holística del riesgo sísmico usando sistemas dinámicos complejos.",
+      desc:"Solo el Capítulo 1 (marco conceptual). Texto fundacional en español sobre por qué el riesgo necesita cuantificarse. Referente latinoamericano.",
+      url:"https://www.tdx.cat/handle/10803/6219"
+    },
+    {
+      tag:"complementaria", label:"Complementaria",
+      ref:"Porter, K.A. (2021). A Beginner's Guide to Fragility, Vulnerability, and Risk.",
+      desc:"Solo las primeras 8 páginas. Explica la diferencia entre los tres conceptos con ejemplos numéricos sencillos. Ideal para aclarar terminología.",
+      url:"https://www.researchgate.net/publication/348974627"
+    },
+    {
+      tag:"complementaria", label:"Complementaria",
+      ref:"CENEPRED (2014). Manual para la evaluación de riesgos originados por fenómenos naturales, 2da versión.",
+      desc:"Releerlo con ojo crítico después de esta sesión: identificar qué preguntas no responde es parte del ejercicio.",
+      url:"https://www.cenepred.gob.pe/web/wp-content/uploads/Guia_Manuales/Manual-Evaluacion-de-Riesgos_v2.pdf"
+    }
+  ],
+  evaluation: [
+    {
+      num:"Pregunta 1",
+      text:"Un cliente te dice: 'ya tengo el EVAR aprobado por CENEPRED, dice que el riesgo es Muy Alto.' ¿Qué información crítica sigue faltando para tomar una decisión de inversión? Menciona al menos dos cosas.",
+      context:null
+    },
+    {
+      num:"Pregunta 2",
+      text:"Para el Mercado de Bagua que trabajaste, identifica con qué dato concreto cubrirías cada uno de los tres ingredientes del enfoque cuantitativo: curva de peligro, función de daño, y valor de exposición.",
+      context:"No necesitas los números exactos — solo el tipo de dato y de dónde lo obtendrías."
+    },
+    {
+      num:"Pregunta 3",
+      text:"La sesión usó la analogía del seguro vehicular. ¿En qué se rompe esa analogía cuando la aplicamos a infraestructura pública como un mercado de abastos?",
+      context:"Pista: piensa en quién asume la pérdida y con qué incentivo."
+    },
+    {
+      num:"Pregunta 4",
+      text:"¿En qué tipo de proyectos crees que el enfoque descriptivo de CENEPRED sí es suficiente y no justificaría el esfuerzo adicional del enfoque probabilístico? Argumenta brevemente.",
+      context:null
+    }
+  ]
+},
+{id:2,title:"El lenguaje del tiempo",subtitle:"Probabilidad y períodos de retorno",duration:"30–45 min",level:"Conceptual + Estadístico",topics:["Probabilidad de excedencia","Período de retorno","La curva de peligro"],status:"locked",content:null,bibliography:[],evaluation:[]},
+{id:3,title:"Vulnerabilidad cuantitativa",subtitle:"Las funciones de fragilidad",duration:"30–45 min",level:"Técnico",topics:["Del índice CENEPRED a funciones de fragilidad","Distribución log-normal","Mediana y beta"],status:"locked",content:null,bibliography:[],evaluation:[]},
+{id:4,title:"Fragilidad para inundaciones",subtitle:"Depth-damage functions",duration:"30–45 min",level:"Técnico aplicado",topics:["Depth-damage functions","Tirante, velocidad, duración","Fuentes de datos para Perú"],status:"locked",content:null,bibliography:[],evaluation:[]},
+{id:5,title:"Exposición y pérdidas",subtitle:"Del daño al número en soles",duration:"30–45 min",level:"Técnico + Económico",topics:["Inventario de activos","De probabilidad de daño a soles","Pérdida Anual Esperada"],status:"locked",content:null,bibliography:[],evaluation:[]},
+{id:6,title:"Métricas de riesgo",subtitle:"Curva de excedencia de pérdidas",duration:"30–45 min",level:"Técnico avanzado",topics:["Curva de excedencia de pérdidas","Cómo interpretar y comunicar","Marco CAPRA completo"],status:"locked",content:null,bibliography:[],evaluation:[]},
+{id:7,title:"Aplicación práctica",subtitle:"CAPRA, certificaciones y MapDrop",duration:"30–45 min",level:"Aplicado",topics:["FEMA P-58 y REDi/USRC","Modelo de negocio","Qué implementar en MapDrop"],status:"locked",content:null,bibliography:[],evaluation:[]}
+];
+
+// ─────────────────────────────────────────────
+//  ESTADO
+// ─────────────────────────────────────────────
+let currentId = 1;
+let activeTab = "content";
+
+function getCompleted(){
+  try{ return JSON.parse(localStorage.getItem("grd_completed")||"{}"); }catch(e){return{}}
+}
+function setCompleted(id){
+  const c=getCompleted(); c[id]=true; localStorage.setItem("grd_completed",JSON.stringify(c));
+}
+function getAnswer(sid,qi){
+  return localStorage.getItem(`grd_ans_${sid}_${qi}`)||"";
+}
+function setAnswer(sid,qi,val){
+  localStorage.setItem(`grd_ans_${sid}_${qi}`,val);
+}
+function getNotes(sid){
+  return localStorage.getItem(`grd_notes_${sid}`)||"";
+}
+function setNotes(sid,val){
+  localStorage.setItem(`grd_notes_${sid}`,val);
+}
+
+// ─────────────────────────────────────────────
+//  RENDER SIDEBAR
+// ─────────────────────────────────────────────
+function renderSidebar(){
+  const completed=getCompleted();
+  const count=Object.keys(completed).length;
+  document.getElementById("prog-text").textContent=`${count} / 7 sesiones`;
+  document.getElementById("prog-fill").style.width=(count/7*100)+"%";
+
+  const list=document.getElementById("sess-list");
+  list.innerHTML=SESSIONS.map(s=>{
+    const isDone=!!completed[s.id];
+    const isActive=s.id===currentId;
+    const isLocked=s.status==="locked"&&!isDone;
+    let numClass=isActive?"n-active":isDone?"n-done":isLocked?"n-lock":"n-avail";
+    let itemClass="sess-item"+(isActive?" active":"")+(isLocked?" locked":"");
+    let numIcon=isDone?"✓":s.id;
+    return `<div class="${itemClass}" onclick="navigate(${s.id})">
+      <div class="s-num ${numClass}">${numIcon}</div>
+      <div class="s-meta">
+        <div class="s-name">${s.title}</div>
+        <div class="s-prev">${s.topics[0]}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ─────────────────────────────────────────────
+//  RENDER CONTENT
+// ─────────────────────────────────────────────
+function renderContent(){
+  const s=SESSIONS.find(x=>x.id===currentId);
+  const completed=getCompleted();
+  const isDone=!!completed[s.id];
+  const area=document.getElementById("content-area");
+
+  if(s.status==="locked"&&!isDone){
+    area.innerHTML=`
+    <div class="sess-hdr">
+      <div class="sess-tag">Sesión ${s.id}</div>
+      <div class="sess-main-title">${s.title}</div>
+      <div class="sess-main-sub">${s.subtitle}</div>
+    </div>
+    <div class="locked-state">
+      <div class="locked-icon">🔒</div>
+      <div class="locked-title">Esta sesión aún no está disponible</div>
+      <div class="locked-text">Completa las sesiones anteriores y pide el contenido de esta sesión cuando estés lista.</div>
+      <div class="locked-topics">
+        ${s.topics.map(t=>`<span class="locked-topic">${t}</span>`).join("")}
+      </div>
+    </div>`;
+    return;
+  }
+
+  const tabBar=["content","bibliography","evaluation"].map(t=>`
+    <button class="tab-btn ${activeTab===t?"active":""}" onclick="switchTab('${t}')">
+      ${{content:"Contenido",bibliography:"Bibliografía",evaluation:"Evaluación"}[t]}
+    </button>`).join("");
+
+  const contentPanel=`<div class="tab-panel ${activeTab==="content"?"active":""}" id="tab-content">
+    ${s.content}
+    <div class="notes-wrap">
+      <div class="notes-lbl">📝 Mis apuntes personales</div>
+      <textarea class="notes-ta" id="notes-ta" placeholder="Escribe aquí tus notas, dudas o conexiones con tu trabajo actual...">${getNotes(s.id)}</textarea>
+    </div>
+  </div>`;
+
+  const bibPanel=`<div class="tab-panel ${activeTab==="bibliography"?"active":""}" id="tab-bibliography">
+    ${s.bibliography.map(b=>`
+    <div class="bib-item">
+      <div class="bib-tag ${b.tag==="obligatoria"?"bt-ob":"bt-co"}">${b.label}</div>
+      <div class="bib-ref">${b.ref}</div>
+      <div class="bib-desc">${b.desc}</div>
+      <a class="bib-link" href="${b.url}" target="_blank">→ Acceder</a>
+    </div>`).join("")}
+  </div>`;
+
+  const evalPanel=`<div class="tab-panel ${activeTab==="evaluation"?"active":""}" id="tab-evaluation">
+    <div class="eval-intro">
+      Responde las preguntas directamente aquí. Tus respuestas se guardan automáticamente en el navegador. No tienen que ser perfectas — sirven para calibrar comprensión antes de la siguiente sesión.
+    </div>
+    ${s.evaluation.map((q,i)=>`
+    <div class="eval-q">
+      <div class="eval-qhdr">
+        <span class="eval-qnum">${q.num}</span>
+        <span class="eval-qtxt">${q.text}</span>
+      </div>
+      ${q.context?`<div class="eval-ctx">${q.context}</div>`:""}
+      <textarea class="eval-ta" id="ans-${i}" placeholder="Tu respuesta...">${getAnswer(s.id,i)}</textarea>
+      <div class="save-ind" id="ind-${i}"></div>
+    </div>`).join("")}
+    <div class="eval-actions">
+      <button class="btn-done" id="btn-done" ${isDone?"disabled":""} onclick="markDone(${s.id})">
+        ${isDone?"✓ Sesión completada":"Marcar sesión como completada"}
+      </button>
+      ${s.id<7?`<button class="btn-next" onclick="navigate(${s.id+1})">Siguiente sesión →</button>`:""}
+    </div>
+  </div>`;
+
+  area.innerHTML=`
+    <div class="sess-hdr">
+      <div class="sess-tag">Sesión ${s.id}</div>
+      <div class="sess-main-title">${s.title}</div>
+      <div class="sess-main-sub">${s.subtitle}</div>
+      <div class="badges">
+        <span class="badge b-dur">⏱ ${s.duration}</span>
+        <span class="badge b-lvl">${s.level}</span>
+        ${isDone?`<span class="badge b-ok">✓ Completada</span>`:""}
+      </div>
+    </div>
+    <div class="tabs">${tabBar}</div>
+    ${contentPanel}${bibPanel}${evalPanel}`;
+
+  // Bind notes
+  const nta=document.getElementById("notes-ta");
+  if(nta) nta.addEventListener("input",e=>setNotes(s.id,e.target.value));
+
+  // Bind eval textareas
+  s.evaluation.forEach((_,i)=>{
+    const ta=document.getElementById(`ans-${i}`);
+    const ind=document.getElementById(`ind-${i}`);
+    if(!ta) return;
+    let timer;
+    ta.addEventListener("input",e=>{
+      clearTimeout(timer);
+      if(ind){ind.textContent="Guardando...";ind.className="save-ind"}
+      timer=setTimeout(()=>{
+        setAnswer(s.id,i,e.target.value);
+        if(ind){ind.textContent="✓ Guardado";ind.className="save-ind saved";setTimeout(()=>{ind.textContent="";ind.className="save-ind"},2000)}
+      },600);
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+//  ACTIONS
+// ─────────────────────────────────────────────
+function navigate(id){
+  currentId=id;
+  activeTab="content";
+  renderSidebar();
+  renderContent();
+  window.scrollTo(0,0);
+}
+
+function switchTab(tab){
+  activeTab=tab;
+  renderContent();
+}
+
+function markDone(id){
+  setCompleted(id);
+  renderSidebar();
+  renderContent();
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+renderSidebar();
+renderContent();
+</script>
+</body>
+</html>
