@@ -61,6 +61,7 @@ main{max-width:1080px; margin:0 auto; padding:26px 20px 70px}
 .eyebrow{font-size:11.5px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--tinta-2)}
 .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
 @media(max-width:760px){.grid-2{grid-template-columns:1fr}}
+@media(max-width:640px){#planBannerGrid{grid-template-columns:1fr!important}}
 
 /* ===== Inicio ===== */
 .hero{background:var(--verde); color:#fff; border-radius:var(--radio); padding:30px 28px; margin-bottom:22px; position:relative; overflow:hidden}
@@ -247,6 +248,27 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
     <p>Simulacros de 100 preguntas en 60 minutos, práctica con corrección inmediata y un repaso que insiste donde más fallas. Cada respuesta muestra su base legal: artículo, título y capítulo.</p>
   </div>
 
+  <div class="card" id="planBanner" style="display:none; margin-bottom:22px; overflow:hidden">
+    <div style="display:grid; grid-template-columns:1fr 1fr; min-height:100%" id="planBannerGrid">
+      <div style="padding:18px 20px">
+        <div class="eyebrow" style="margin-bottom:8px">Plan gratuito</div>
+        <div style="font-size:13px; line-height:1.7">
+          ✓ Estudio completo de las 1,500 preguntas<br>
+          ✓ <b>10 preguntas de práctica al día</b> con corrección<br>
+          ✓ 1 simulacro de prueba
+        </div>
+      </div>
+      <div style="padding:18px 20px; background:var(--verde); color:#fff">
+        <div class="eyebrow" style="color:var(--dorado); margin-bottom:8px">★ Premium · <span id="pbPrecio">S/ 20</span> todo el proceso</div>
+        <div style="font-size:13px; line-height:1.7">
+          ✓ Práctica y simulacros <b>ilimitados</b><br>
+          ✓ Repaso inteligente + estadísticas completas<br>
+          ✓ Todos tus dispositivos, hasta el 15/12/2026
+        </div>
+        <button class="btn btn-dorado" style="margin-top:10px; padding:8px 18px; font-size:13px" onclick="ir('premium')">Ver Premium</button>
+      </div>
+    </div>
+  </div>
   <div class="stats-fila">
     <div class="card stat"><div class="num" id="stRespondidas">0</div><div class="lbl">Preguntas practicadas</div></div>
     <div class="card stat"><div class="num" id="stPrecision">—</div><div class="lbl">Precisión global</div></div>
@@ -614,6 +636,8 @@ function actualizarUIPremium(){
       else { sin.style.display=""; pasos.classList.add("oculto"); }
     }
   }
+  const pb = document.getElementById("planBanner");
+  if(pb){ pb.style.display = esPremium ? "none" : ""; const pp = document.getElementById("pbPrecio"); if(pp) pp.textContent = "S/ " + precioActual(); }
   const pq = document.getElementById("pracQuota");
   if(pq){
     if(esPremium){ pq.style.display = "none"; }
@@ -680,7 +704,7 @@ function ir(v){
   if(el) el.classList.add("on");
   document.querySelectorAll("#navBar button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
   window.scrollTo({top:0});
-  if(v==="inicio") renderInicio();
+  if(v==="inicio"){ renderInicio(); actualizarUIPremium(); }
   if(v==="practica" || v==="premium") actualizarUIPremium();
   if(v==="repaso") renderRepasoResumen();
   if(v==="estudio") renderEstudio();
