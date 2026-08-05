@@ -222,6 +222,7 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
     <div class="header-right">
       <span id="userChip" class="user-chip oculto"></span>
       <button id="btnCuentaHdr" class="btn-ghost" onclick="ir('cuenta')">Iniciar sesión</button>
+      <button id="btnSalirHdr" class="btn-ghost oculto" onclick="cerrarSesion()" title="Cerrar sesión">Salir</button>
     </div>
   </div>
 </header>
@@ -554,6 +555,7 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
         <button id="tabLogin" class="on" onclick="authTab('login')">Iniciar sesión</button>
         <button id="tabReg" onclick="authTab('reg')">Crear cuenta</button>
       </div>
+      <div class="campo" id="campoUsuario" style="display:none"><span>Nombre de usuario</span><input type="text" id="authUsuario" maxlength="20" autocomplete="nickname" placeholder="Ej: SO3_Rodriguez"></div>
       <div class="campo"><span>Correo electrónico</span><input type="email" id="authEmail" autocomplete="email" placeholder="tucorreo@ejemplo.com"></div>
       <div class="campo"><span>Contraseña</span><input type="password" id="authPass" autocomplete="current-password" placeholder="Mínimo 6 caracteres"></div>
       <div id="authMsg"></div>
@@ -561,6 +563,13 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
     </div>
     <div id="ctaSesion" class="oculto">
       <div class="aviso ok">Sesión iniciada como <b id="ctaEmail"></b>. Tu progreso se sincroniza automáticamente.</div>
+      <div class="campo"><span>Nombre de usuario (visible en la app)</span>
+        <div style="display:flex; gap:8px">
+          <input type="text" id="ctaUsuario" maxlength="20" style="flex:1; padding:11px 13px; border:1.5px solid var(--borde); border-radius:9px; font-size:14px; font-family:inherit">
+          <button class="btn btn-verde" style="padding:11px 16px" onclick="guardarUsuario()">Guardar</button>
+        </div>
+        <div id="ctaUsuarioMsg" style="font-size:12px; margin-top:6px; color:var(--tinta-2)"></div>
+      </div>
       <div id="syncEstado" style="font-size:12.5px; color:var(--tinta-2); margin-bottom:16px"></div>
       <button class="btn btn-linea" style="width:100%" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
@@ -591,6 +600,10 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
    Datos: preguntas.js (MATERIAS, BANK) · Config nube: config.js
    ================================================================ */
 "use strict";
+if(typeof BANK === "undefined" || typeof MATERIAS === "undefined"){
+  document.body.innerHTML = '<div style="max-width:520px;margin:80px auto;padding:28px;background:#fff;border:1.5px solid #DDD8C9;border-radius:12px;font-family:system-ui;text-align:center"><h2 style="color:#143D2B">No se pudo cargar el banco de preguntas</h2><p style="color:#5C6157;margin-top:10px;line-height:1.6">El archivo <b>preguntas.js</b> no está disponible. Si eres el administrador, verifica que <b>preguntas.js</b> y <b>config.js</b> estén en la misma carpeta que este index.html. Si eres usuario, recarga la página en unos minutos.</p></div>';
+  throw new Error("BANK no disponible");
+}
 const LETRAS = ["A","B","C","D","E"];
 const CLAVE_LS = "balotario_pnp_v1";
 const EXAM_SEG = 3600; // 60 minutos
@@ -607,7 +620,7 @@ async function cargarPremium(){
   if(sb && usuario){
     try{
       const {data} = await sb.from("premium").select("activo,vence").eq("user_id", usuario.id).maybeSingle();
-      if(data && data.activo && new Date(data.vence) > new Date()){ esPremium = true; premVenceEl = data.vence; }
+      if(data && data.activo && new Date(data.vence) > new Date()){ esPremium = true; premVenceEl = data.vence; evento("premium_activo"); }
     }catch(e){}
   }
   actualizarUIPremium();
@@ -646,7 +659,21 @@ function actualizarUIPremium(){
                          : `Agotaste tus ${PREM.limPracticaDia} preguntas gratuitas de hoy. <a href="javascript:ir('premium')" style="color:var(--verde); font-weight:700">Hazte Premium</a> para seguir sin límites, o vuelve mañana.`; }
   }
 }
-function upsell(msg){ abrirModal("Función Premium", msg + " El plan Premium cuesta S/ " + precioActual() + " por todo el proceso 2026.", ()=>ir("premium"), "Ver Premium"); }
+function upsell(msg){ evento("upsell_mostrado"); abrirModal("Función Premium", msg + " El plan Premium cuesta S/ " + precioActual() + " por todo el proceso 2026.", ()=>ir("premium"), "Ver Premium"); }
+
+/* ---------- Analítica (Google Analytics 4, opcional) ---------- */
+function initAnalitica(){
+  const id = (window.APP_CONFIG||{}).GA_ID;
+  if(!id) return;
+  const s = document.createElement("script");
+  s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + id;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ dataLayer.push(arguments); };
+  gtag("js", new Date());
+  gtag("config", id);
+}
+function evento(nombre, datos){ if(window.gtag) gtag("event", nombre, datos||{}); }
 
 
 /* ---------- Progreso ---------- */
@@ -704,6 +731,8 @@ function ir(v){
   if(el) el.classList.add("on");
   document.querySelectorAll("#navBar button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
   window.scrollTo({top:0});
+  evento("vista", { pantalla: v });
+  if(v==="premium") evento("premium_visto", { precio: precioActual(), logueado: !!usuario });
   if(v==="inicio"){ renderInicio(); actualizarUIPremium(); }
   if(v==="practica" || v==="premium") actualizarUIPremium();
   if(v==="repaso") renderRepasoResumen();
@@ -849,6 +878,7 @@ function entregarExamen(porTiempo){
   const reg = { fecha:Date.now(), modalidad:examen.modalidad, score, total:examen.qs.length, seg:usado,
                 porMat:Object.fromEntries(Object.entries(porMat).map(([k,v])=>[k,[v.r,v.t]])) };
   P.exams.push(reg);
+  evento("simulacro_terminado", { nota: score, premium: esPremium });
   guardar();
 
   document.getElementById("resNota").innerHTML = `${score}<small>/100</small>`;
@@ -921,7 +951,7 @@ function renderSelMaterias(){
 function marcarMaterias(v){ document.querySelectorAll(".chkMat").forEach(c=>c.checked=v); }
 
 function iniciarPractica(){
-  if(!esPremium && quotaRestante()<=0){ upsell("Agotaste tus " + PREM.limPracticaDia + " preguntas gratuitas de hoy."); return; }
+  if(!esPremium && quotaRestante()<=0){ evento("cuota_agotada"); upsell("Agotaste tus " + PREM.limPracticaDia + " preguntas gratuitas de hoy."); return; }
   const mats = [...document.querySelectorAll(".chkMat:checked")].map(c=>+c.value);
   if(!mats.length){ abrirModal("Sin materias","Selecciona al menos una materia para practicar.", null, "Entendido"); return; }
   const soloF = document.getElementById("pracSoloFalladas").checked;
@@ -1157,6 +1187,7 @@ function authTab(m){
   authModo = m;
   document.getElementById("tabLogin").classList.toggle("on", m==="login");
   document.getElementById("tabReg").classList.toggle("on", m==="reg");
+  document.getElementById("campoUsuario").style.display = (m==="reg") ? "" : "none";
   document.getElementById("btnAuth").textContent = m==="login"? "Iniciar sesión":"Crear cuenta";
   document.getElementById("ctaTitulo").textContent = m==="login"? "Inicia sesión":"Crea tu cuenta";
   document.getElementById("authMsg").innerHTML = "";
@@ -1170,8 +1201,10 @@ async function autenticar(){
   btn.disabled = true;
   try{
     if(authModo==="reg"){
-      const {error} = await sb.auth.signUp({email, password:pass});
+      const username = document.getElementById("authUsuario").value.trim();
+      const {error} = await sb.auth.signUp({email, password:pass, options:{ data:{ username } }});
       if(error) throw error;
+      evento("registro");
       msg.innerHTML = `<div class="aviso ok">Cuenta creada. Si tu correo requiere confirmación, revisa tu bandeja antes de iniciar sesión.</div>`;
     }else{
       const {error} = await sb.auth.signInWithPassword({email, password:pass});
@@ -1216,8 +1249,11 @@ async function sesionIniciada(u){
   document.getElementById("ctaSesion").classList.remove("oculto");
   document.getElementById("ctaTitulo").textContent = "Tu cuenta";
   document.getElementById("ctaEmail").textContent = u.email;
+  const uname = (u.user_metadata && u.user_metadata.username) ? u.user_metadata.username : "";
   const chip = document.getElementById("userChip");
-  chip.textContent = u.email; chip.classList.remove("oculto");
+  chip.textContent = uname || u.email; chip.title = u.email; chip.classList.remove("oculto");
+  document.getElementById("btnSalirHdr").classList.remove("oculto");
+  const cu = document.getElementById("ctaUsuario"); if(cu) cu.value = uname;
   document.getElementById("btnCuentaHdr").textContent = "Cuenta";
   await bajarNube();
   await marcarSesion();
@@ -1225,6 +1261,7 @@ async function sesionIniciada(u){
 }
 function sesionCerrada(){
   usuario = null;
+  document.getElementById("btnSalirHdr").classList.add("oculto");
   if(sesTimer) clearInterval(sesTimer);
   sesToken = null;
   esPremium = false; premVenceEl = null;
@@ -1236,6 +1273,20 @@ function sesionCerrada(){
   authTab("login");
 }
 async function cerrarSesion(){ await sb.auth.signOut(); }
+async function guardarUsuario(){
+  const v = document.getElementById("ctaUsuario").value.trim();
+  const msg = document.getElementById("ctaUsuarioMsg");
+  if(!v){ msg.textContent = "Escribe un nombre de usuario."; return; }
+  try{
+    const {data, error} = await sb.auth.updateUser({ data:{ username: v } });
+    if(error) throw error;
+    if(data && data.user) usuario = data.user;
+    const chip = document.getElementById("userChip");
+    chip.textContent = v;
+    msg.textContent = "Guardado ✓";
+    setTimeout(()=>{ msg.textContent=""; }, 2500);
+  }catch(e){ msg.textContent = "No se pudo guardar: " + (e.message||e); }
+}
 
 async function bajarNube(){
   if(!sb || !usuario) return;
@@ -1298,6 +1349,7 @@ window.addEventListener("beforeunload", (ev)=>{
 
 /* ---------- Arranque ---------- */
 cargarLocal();
+initAnalitica();
 actualizarUIPremium();
 renderSelMaterias();
 renderEstudioSelector();
