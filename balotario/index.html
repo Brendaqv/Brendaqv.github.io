@@ -205,6 +205,22 @@ main{max-width:1080px; margin:0 auto; padding:26px 20px 70px}
 .modal p{font-size:14px; color:var(--tinta-2); margin-bottom:18px}
 .modal .acciones{display:flex; gap:10px; justify-content:flex-end}
 
+.bienvenida{position:fixed; inset:0; background:rgba(12,42,29,.72); display:none; place-items:center; z-index:60; padding:16px; overflow-y:auto}
+.bienvenida.on{display:grid}
+.bv-caja{background:var(--papel); border-radius:16px; max-width:430px; width:100%; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.bv-cab{background:var(--verde); color:#fff; padding:20px 22px 16px; border-bottom:3px solid var(--dorado)}
+.bv-cab h3{font-size:19px; font-weight:800; line-height:1.2}
+.bv-cab p{font-size:12.5px; color:#CFDCD2; margin-top:4px}
+.bv-cuerpo{padding:16px}
+.bv-op{display:block; width:100%; text-align:left; border-radius:12px; padding:14px 16px; margin-bottom:10px; cursor:pointer; border:1.5px solid var(--borde); background:#fff; transition:transform .1s}
+.bv-op:hover{transform:translateY(-1px)}
+.bv-op .t{font-family:'Archivo'; font-weight:800; font-size:15.5px}
+.bv-op .d{font-size:12.5px; color:var(--tinta-2); margin-top:3px; line-height:1.45}
+.bv-op.prem{background:var(--verde); border-color:var(--verde); color:#fff}
+.bv-op.prem .t{color:var(--dorado)}
+.bv-op.prem .d{color:#DCE7DF}
+.bv-oferta{display:inline-block; background:var(--dorado); color:var(--verde-osc); font-weight:800; font-size:11.5px; letter-spacing:.6px; padding:3px 10px; border-radius:99px; margin-bottom:5px}
+.bv-mirar{display:block; width:100%; text-align:center; background:none; border:none; color:var(--tinta-2); font-size:12.5px; padding:8px; text-decoration:underline}
 footer{border-top:1px solid var(--borde); padding:22px 20px; text-align:center; font-size:12px; color:var(--tinta-2)}
 footer a{color:var(--verde); font-weight:600; text-decoration:none}
 .oculto{display:none!important}
@@ -578,6 +594,27 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
 
 </main>
 
+<div class="bienvenida" id="bienvenida">
+  <div class="bv-caja">
+    <div class="bv-cab">
+      <h3>Prepara tu ascenso con el banco oficial</h3>
+      <p>1,500 preguntas SIECOPOL 2026 · Simulacros · Corrección con base legal</p>
+    </div>
+    <div class="bv-cuerpo">
+      <button class="bv-op" onclick="bvElegir('gratis')">
+        <div class="t">Crear mi cuenta gratis</div>
+        <div class="d">Practica 10 preguntas al día con corrección, rinde un simulacro de prueba y guarda tu avance en la nube.</div>
+      </button>
+      <button class="bv-op prem" onclick="bvElegir('premium')">
+        <span class="bv-oferta" id="bvOferta">OFERTA DE LANZAMIENTO · HASTA EL 31 DE AGOSTO</span>
+        <div class="t" id="bvPremTitulo">★ Premium — S/ 20 todo el proceso</div>
+        <div class="d" id="bvPremDetalle">Práctica y simulacros ilimitados, repaso inteligente y estadísticas hasta el examen. Luego costará S/ 35.</div>
+      </button>
+      <button class="bv-mirar" onclick="bvElegir('mirar')">Solo quiero mirar por ahora</button>
+    </div>
+  </div>
+</div>
+
 <div class="velo" id="velo">
   <div class="modal">
     <h3 id="modalTitulo"></h3>
@@ -674,6 +711,31 @@ function initAnalitica(){
   gtag("config", id);
 }
 function evento(nombre, datos){ if(window.gtag) gtag("event", nombre, datos||{}); }
+
+/* ---------- Bienvenida (3 puertas) y modo visitante ---------- */
+function esVisitante(){ return !!sb && !usuario; }
+function pedirCuenta(accion){
+  abrirModal("Crea tu cuenta gratis", "Para " + accion + " necesitas una cuenta gratuita: así guardamos tu avance y tus estadísticas en la nube. Toma menos de un minuto.", ()=>{ ir("cuenta"); authTab("reg"); }, "Crear cuenta gratis");
+}
+function mostrarBienvenida(){
+  if(usuario) return;
+  try{ if(localStorage.getItem("bv_vista") === hoyStr()) return; }catch(e){}
+  const p = precioActual();
+  document.getElementById("bvPremTitulo").textContent = "★ Premium — S/ " + p + " todo el proceso";
+  if(p >= PREM.precio){
+    document.getElementById("bvOferta").style.display = "none";
+    document.getElementById("bvPremDetalle").textContent = "Práctica y simulacros ilimitados, repaso inteligente y estadísticas hasta el examen.";
+  }
+  document.getElementById("bienvenida").classList.add("on");
+  evento("bienvenida_mostrada");
+}
+function bvElegir(op){
+  document.getElementById("bienvenida").classList.remove("on");
+  try{ localStorage.setItem("bv_vista", hoyStr()); }catch(e){}
+  evento("bienvenida_eleccion", { opcion: op });
+  if(op==="gratis"){ ir("cuenta"); authTab("reg"); }
+  if(op==="premium"){ ir("premium"); }
+}
 
 
 /* ---------- Progreso ---------- */
@@ -787,6 +849,7 @@ function cuotasProporcionales(total){
 }
 
 function iniciarSimulacro(){
+  if(esVisitante()){ pedirCuenta("rendir tu simulacro de prueba"); return; }
   if(!esPremium && P.exams.length >= PREM.simulacrosGratis){ upsell("Ya usaste tu simulacro gratuito de prueba. Los simulacros ilimitados son Premium."); return; }
   const modalidad = document.querySelector("input[name=modalidad]:checked").value;
   let qs = [];
@@ -951,6 +1014,7 @@ function renderSelMaterias(){
 function marcarMaterias(v){ document.querySelectorAll(".chkMat").forEach(c=>c.checked=v); }
 
 function iniciarPractica(){
+  if(esVisitante()){ pedirCuenta("practicar con corrección"); return; }
   if(!esPremium && quotaRestante()<=0){ evento("cuota_agotada"); upsell("Agotaste tus " + PREM.limPracticaDia + " preguntas gratuitas de hoy."); return; }
   const mats = [...document.querySelectorAll(".chkMat:checked")].map(c=>+c.value);
   if(!mats.length){ abrirModal("Sin materias","Selecciona al menos una materia para practicar.", null, "Entendido"); return; }
@@ -987,6 +1051,7 @@ function renderRepasoResumen(){
     `<b>${fall}</b> preguntas falladas pendientes de recuperar · <b>${nunca}</b> aún sin ver · <b>${dom}</b> dominadas.`;
 }
 function iniciarRepaso(){
+  if(esVisitante()){ pedirCuenta("usar el repaso inteligente"); return; }
   if(!esPremium){ upsell("El repaso inteligente es una función Premium."); return; }
   const cant = +document.getElementById("repCant").value;
   const cola = colaRepaso().slice(0, cant*2);           // toma el frente de la cola…
@@ -1177,7 +1242,7 @@ function initNube(){
     return;
   }
   sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-  sb.auth.getSession().then(({data})=>{ if(data.session) sesionIniciada(data.session.user); });
+  sb.auth.getSession().then(({data})=>{ if(data.session) sesionIniciada(data.session.user); else mostrarBienvenida(); });
   sb.auth.onAuthStateChange((ev, session)=>{
     if(ev==="SIGNED_IN" && session) sesionIniciada(session.user);
     if(ev==="SIGNED_OUT") sesionCerrada();
@@ -1358,3 +1423,4 @@ initNube();
 </script>
 </body>
 </html>
+
