@@ -336,6 +336,15 @@ footer a{color:var(--verde); font-weight:600; text-decoration:none}
       <input type="radio" name="modalidad" value="azar" onchange="selModalidad()">
       <div><b>100 puramente aleatorias</b><span>Cualquier pregunta del banco puede salir, sin cuotas por materia.</span></div>
     </label>
+    <div class="campo" style="margin-top:16px"><span>Corrección de respuestas</span></div>
+    <label class="opcion-modal sel" id="ocFin">
+      <input type="radio" name="correccion" value="fin" checked onchange="selCorreccion()">
+      <div><b>Al entregar (como el examen real)</b><span>Respondes las 100 sin saber tus aciertos; la corrección llega al final. Máximo realismo.</span></div>
+    </label>
+    <label class="opcion-modal" id="ocInst">
+      <input type="radio" name="correccion" value="inst" onchange="selCorreccion()">
+      <div><b>Inmediata al responder</b><span>Cada respuesta se corrige al instante con su base legal. Ideal para entrenar; ya no podrás cambiarla.</span></div>
+    </label>
     <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap">
       <button class="btn btn-verde" onclick="iniciarSimulacro()">Iniciar simulacro</button>
       <button class="btn btn-linea" onclick="ir('inicio')">Volver</button>
@@ -696,7 +705,7 @@ function actualizarUIPremium(){
                          : `Agotaste tus ${PREM.limPracticaDia} preguntas gratuitas de hoy. <a href="javascript:ir('premium')" style="color:var(--verde); font-weight:700">Hazte Premium</a> para seguir sin límites, o vuelve mañana.`; }
   }
 }
-function upsell(msg){ evento("upsell_mostrado"); abrirModal("Función Premium", msg + " El plan Premium cuesta S/ " + precioActual() + " por todo el proceso 2026.", ()=>ir("premium"), "Ver Premium"); }
+function upsell(msg){ evento("upsell_mostrado"); abrirModal("Función Premium", msg + " El plan Premium cuesta S/ " + precioActual() + ".", ()=>ir("premium"), "Hacerme Premium"); }
 
 /* ---------- Analítica (Google Analytics 4, opcional) ---------- */
 function initAnalitica(){
@@ -838,6 +847,11 @@ function selModalidad(){
   document.getElementById("omProp").classList.toggle("sel", v==="prop");
   document.getElementById("omAzar").classList.toggle("sel", v==="azar");
 }
+function selCorreccion(){
+  const v = document.querySelector("input[name=correccion]:checked").value;
+  document.getElementById("ocFin").classList.toggle("sel", v==="fin");
+  document.getElementById("ocInst").classList.toggle("sel", v==="inst");
+}
 
 function cuotasProporcionales(total){
   const pesos = CUENTA_MAT.map(c=>c*total/BANK.length);
@@ -863,7 +877,8 @@ function iniciarSimulacro(){
   }else{
     qs = shuffle(BANK.slice()).slice(0,100);
   }
-  examen = { activo:true, qs, resp:Array(qs.length).fill(null), duda:Array(qs.length).fill(false), idx:0, seg:EXAM_SEG, timerId:null, modalidad };
+  const corr = document.querySelector("input[name=correccion]:checked").value;
+  examen = { activo:true, qs, resp:Array(qs.length).fill(null), duda:Array(qs.length).fill(false), idx:0, seg:EXAM_SEG, timerId:null, modalidad, inst: corr==="inst" };
   document.querySelectorAll(".vista").forEach(x=>x.classList.remove("on"));
   document.getElementById("v-examen").classList.add("on");
   window.scrollTo({top:0});
@@ -881,17 +896,23 @@ function tic(soloRender){
 function renderExamen(){
   const i = examen.idx, q = examen.qs[i];
   const card = document.getElementById("examCard");
+  const corregida = examen.inst && examen.resp[i]!==null;
   card.innerHTML = `
     <div class="q-meta">
       <span class="q-num">${i+1}</span>
       <span class="q-mat">${esc(MATERIAS[q.m].name)}</span>
     </div>
     <div class="q-texto">${esc(q.q)}</div>
-    <div class="opts">${q.o.map((o,j)=>`
-      <button class="opt ${examen.resp[i]===j?"sel":""}" onclick="respExam(${j})">
+    <div class="opts">${q.o.map((o,j)=>{
+      let cls = "opt";
+      if(corregida){ if(j===q.c) cls+=" ok"; else if(j===examen.resp[i]) cls+=" mal"; }
+      else if(examen.resp[i]===j) cls+=" sel";
+      return `<button class="${cls}" ${corregida?"disabled":""} onclick="respExam(${j})">
         <span class="letra">${LETRAS[j]}</span><span>${esc(o)}</span>
-      </button>`).join("")}
-    </div>`;
+      </button>`;
+    }).join("")}
+    </div>
+    <div id="examFb">${corregida ? `<div class="fb ${examen.resp[i]===q.c?"ok":"mal"}">${examen.resp[i]===q.c?"✓ Correcto.":"✗ Incorrecto. La respuesta era "+LETRAS[q.c]+"."}</div>` + sello(q) : ""}</div>`;
   const nResp = examen.resp.filter(x=>x!==null).length;
   document.getElementById("examProg").textContent = `Pregunta ${i+1} de ${examen.qs.length} · ${nResp} respondidas`;
   document.getElementById("btnPrev").disabled = i===0;
@@ -912,6 +933,14 @@ function renderGridNav(){
   }).join("");
 }
 function respExam(j){
+  if(examen.inst){
+    if(examen.resp[examen.idx]!==null) return;      // ya corregida: no se cambia
+    examen.resp[examen.idx] = j;
+    renderExamen();
+    const fb = document.getElementById("examFb");
+    if(fb) fb.scrollIntoView({ behavior:"smooth", block:"nearest" });
+    return;
+  }
   examen.resp[examen.idx] = (examen.resp[examen.idx]===j)? null : j;
   renderExamen();
 }
@@ -1099,7 +1128,8 @@ function respSesion(j){
   document.getElementById("sesFb").innerHTML =
     `<div class="fb ${ok?"ok":"mal"}">${ok? "✓ Correcto." : `✗ Incorrecto. La respuesta era ${LETRAS[q.c]}.`}</div>` + sello(q);
   document.getElementById("sesSiguiente").classList.remove("oculto");
-  document.getElementById("sesSiguiente").focus();
+  const fb = document.getElementById("sesFb");
+  if(fb) fb.scrollIntoView({ behavior:"smooth", block:"nearest" });
 }
 function sesAvanzar(){
   if(!esPremium && ses.tipo==="practica" && quotaRestante()<=0){ finSesion(); upsell("Agotaste tus preguntas gratuitas de hoy."); return; }
@@ -1323,6 +1353,7 @@ async function sesionIniciada(u){
   await bajarNube();
   await marcarSesion();
   await cargarPremium();
+  if(document.getElementById("v-cuenta").classList.contains("on")) ir("inicio");
 }
 function sesionCerrada(){
   usuario = null;
@@ -1423,4 +1454,3 @@ initNube();
 </script>
 </body>
 </html>
-
