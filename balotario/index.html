@@ -1221,36 +1221,6 @@ function renderStats(){
     </div>`).join("") : `<span style="color:var(--tinta-2)">Sin fallas registradas todavía.</span>`;
 }
 
-/* ---------- Exportar / importar / reiniciar ---------- */
-function exportarProgreso(){
-  const blob = new Blob([JSON.stringify(P,null,1)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "balotario_progreso.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function importarProgreso(inp){
-  const f = inp.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{
-    try{
-      const d = JSON.parse(r.result);
-      if(!d || d.v!==1 || typeof d.q!=="object") throw 0;
-      P = d; guardar(); renderInicio(); renderStats();
-      abrirModal("Progreso importado","Tu progreso se cargó correctamente.", null, "Entendido");
-    }catch(e){ abrirModal("Archivo no válido","El archivo no tiene el formato de progreso de esta app.", null, "Entendido"); }
-  };
-  r.readAsText(f);
-  inp.value = "";
-}
-function pedirBorrado(){
-  abrirModal("Reiniciar progreso","Se borrarán todas tus respuestas, estadísticas e historial de simulacros. Esta acción no se puede deshacer.", ()=>{
-    P = { q:{}, exams:[], v:1, t:0 };
-    guardar(); renderInicio(); renderStats();
-  }, "Borrar todo");
-}
-
 /* ================================================================
    CUENTAS Y SINCRONIZACIÓN (Supabase, opcional)
    ================================================================ */
